@@ -55,7 +55,6 @@ public class BlueTeleop extends OpMode {
 
     private boolean newShooter = false;
     private Turret turret;
-    public boolean activeHood = false;
     private Follower follower;
     private Shooter shooter;
     private Intake intake;
@@ -133,9 +132,7 @@ public class BlueTeleop extends OpMode {
         } else {
             hoodPos = coefficients[0];
         }
-        if (activeHood) {
             shooter.setHood(hoodPos);
-        }
 
         if (Math.max(0, getBlueDistance() - 110)>0){
 //            blueGoalPose = farBlueGoalPose;
@@ -269,7 +266,6 @@ public class BlueTeleop extends OpMode {
         if (gamepad2.left_bumper) {
             intake.engagePTO();
             intake.setStopper(0.35);
-            activeHood = true;
             double farExtraInches = Math.max(0, getBlueDistance() - 110);
             if(farExtraInches > 0) {
                 intake.onSpeed(1.0);
@@ -280,7 +276,6 @@ public class BlueTeleop extends OpMode {
         }
         else if (gamepad2.leftBumperWasReleased()) {
             intake.intakeOff();
-            activeHood = false;
             intake.setStopper(0.48);
         }
 

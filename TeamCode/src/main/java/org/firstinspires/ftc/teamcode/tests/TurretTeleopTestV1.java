@@ -84,6 +84,8 @@ public class TurretTeleopTestV1 extends OpMode {
 //        shooter.periodic();
 
         turretPID.setCoefficients(new PIDFCoefficients(kP, kI, kD, kF));
+        shooter.setAutoShoot(true);
+        shooter.periodic();
 
         if (gamepad1.a) turret.resetTurretEncoder();   // reset
         if (gamepad1.b) {                              // manual profiled move

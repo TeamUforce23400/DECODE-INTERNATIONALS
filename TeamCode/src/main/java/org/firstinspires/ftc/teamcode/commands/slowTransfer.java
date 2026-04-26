@@ -33,7 +33,7 @@ public class slowTransfer extends CommandBase {
             return (intakeSubsystem.getStopper() == 0.35);
         }
         else {
-            return (intakeSubsystem.getStopper() == 0.5);
+            return (intakeSubsystem.getStopper() == 0.48);
         }
 
     }

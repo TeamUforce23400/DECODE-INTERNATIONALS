@@ -17,6 +17,7 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.Tuning.follower;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.math.Vector;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -57,6 +58,7 @@ public class Shooter extends SubsystemBase {
     public static double shooterDistanceBiasInches = 0;
     // Far-shot correction for drag/spin/slip not captured by ideal projectile equations.
     public static double farCompStartInches = 100.0;
+    public static double powerConstant = 2.42;
     public static double farRangeCompInches = 10.0;
     // Blend long shots toward a lower/direct trajectory.
     public static double farLowAngleStartInches = 110.0;
@@ -76,6 +78,8 @@ public class Shooter extends SubsystemBase {
         sh.setDirection(DcMotorSimple.Direction.FORWARD);
         hood = new ServoEx(hardwareMap, "hood");
         sh2.setDirection(DcMotorSimple.Direction.FORWARD);
+        sh.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        sh2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         I = 0.2;
         P = 1.3;
         kS = 0.06;
@@ -101,23 +105,27 @@ public class Shooter extends SubsystemBase {
     public void periodic() {
         velocity1 = sh.getVelocity();
         velocity2 = sh2.getVelocity();
-        double actualShotSpeed = Math.abs(0.5 * (velocity1 - velocity2));
+        double actualShotSpeed = velocity1;
         if (autoShoot) {
             double shotDistance = getGoalDistance(chosenAlliance);
             double[] coefficients = Shooter.getCoefficientsFromDistance(shotDistance);
-            if (shotDistance < 110) {
-                targetVelocity = coefficients[1] - 40;
+            if (shotDistance > 100) {
+                Shooter.landAngle = Math.toRadians(-20);
+                Shooter.powerConstant = 2.3;
             }
             else {
-                targetVelocity = coefficients[1];
+                Shooter.landAngle = Math.toRadians(-10);
+                Shooter.powerConstant = 2.42;
             }
-//            if (Math.abs(actualShotSpeed - targetVelocity) > 60) {
-//                pos = Shooter.getLowAngleHoodFromDistanceAndSpeed(shotDistance, actualShotSpeed);
-//            } else {
+            targetVelocity = coefficients[1];
+            if (Math.abs(actualShotSpeed - targetVelocity) > 40 && (shotDistance < 100)) {
+                pos = Shooter.getLowAngleHoodFromDistanceAndSpeed(shotDistance, actualShotSpeed);
+            } else {
                 pos = coefficients[0];
-//            }
+            }
             setHood(pos);
         }
+
 //        telemetry.addData("TargetVel", targetVelocity);
 //        telemetry.addData("Difference", actualShotSpeed - targetVelocity);
 //        telemetry.addData("New hood", (Math.abs(actualShotSpeed - targetVelocity) > 40.0));
@@ -135,7 +143,7 @@ public class Shooter extends SubsystemBase {
 //                    1.0
 //            );
 //        }
-        if (actualShotSpeed < targetVelocity) {
+        if (actualShotSpeed < targetVelocity - 10) {
             shooterPower = 1;
         }
         else {
@@ -246,11 +254,11 @@ public class Shooter extends SubsystemBase {
 
         
     public static double getShooterTicksFromSpeed(double speed) {
-        return (28*1.25*2.42*speed/(2*Math.PI*0.048));
+        return (28*powerConstant*speed/(2*Math.PI*0.048));
     }
 
     public static double getShooterSpeedFromTicks(double ticksPerSecond) {
-        return (ticksPerSecond * Math.PI * 0.048*2) / (28.0*1.25*2.42);
+        return (ticksPerSecond * Math.PI * 0.048*2) / (28.0*powerConstant);
     }
 
     public static double getLowAngleHoodFromDistanceAndSpeed(double distanceInches, double actualTicksPerSecond) {
@@ -304,9 +312,9 @@ public class Shooter extends SubsystemBase {
         double y = 0.5842;
         double a = landAngle;
 
-        if (d >= farCompStartInches) {
-            a = Math.toRadians(-25);
-        }
+//        if (d >= farCompStartInches) {
+//            a = Math.toRadians(-20);
+//        }
 
         double minHoodAngleRad = Math.toRadians(Math.min(maxHoodAngle, minHoodAngle));
         double maxHoodAngleRad = Math.toRadians(Math.max(maxHoodAngle, minHoodAngle));
