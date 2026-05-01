@@ -630,7 +630,7 @@ public class RedFarSide extends CommandOpMode {
         shooter = new Shooter(hardwareMap, telemetryM);
         turret = new Turret(hardwareMap, telemetryM);
         turret.resetTurretEncoder();
-        Shooter.landAngle = Math.toRadians(-7);
+        Shooter.landAngle = Math.toRadians(-15);
 
         intake.setAutoEnabled(true);
         shooter.setAutoShoot(true);
@@ -650,14 +650,14 @@ public class RedFarSide extends CommandOpMode {
         SequentialCommandGroup shooterSequence = new SequentialCommandGroup(
 //                new stationary(follower),
 //                new isAimed(turret),
-                new transfer(intake, true),
+                new slowTransfer(intake, true),
                 new ParallelCommandGroup(
-                        new WaitCommand(300),
+                        new WaitCommand(500),
                         new turretAutoAim(turret, true)
                 ),
                 new WaitCommand(250),
                 new allBallsGone(intake).withTimeout(100),
-                new transfer(intake, false),
+                new slowTransfer(intake, false),
                 new turretAutoAim(turret, false)
         );
 
