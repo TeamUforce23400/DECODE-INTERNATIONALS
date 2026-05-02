@@ -158,8 +158,8 @@ public class Shooter extends SubsystemBase {
 
     public boolean atSpeed() {
         targetVelocity = getCoefficientsFromDistance(getGoalDistance(chosenAlliance))[1];
-        double actualShotSpeed = Math.abs(0.5 * (sh.getVelocity() - sh2.getVelocity()));
-        return Math.abs(actualShotSpeed - targetVelocity) < 30;
+        double actualShotSpeed = sh.getVelocity();
+        return Math.abs(actualShotSpeed - targetVelocity) < 20;
     }
 
     public void setAutoShoot(boolean on) {

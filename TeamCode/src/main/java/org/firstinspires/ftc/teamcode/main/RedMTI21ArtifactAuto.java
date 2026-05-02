@@ -80,7 +80,7 @@ public class RedMTI21ArtifactAuto extends CommandOpMode {
     private int loopCounter;
     private ElapsedTime elapsedtime;
 
-    private PathChain path1, path2, path3, path4, path5, path6, path7, path8, path9, path10, path10Mid, path10End, path11, path12, path13, path12Mid, path12End, path8Drifted, humanPlayerToShoot, humanPlayerCollectPathFinish, leave;
+    private PathChain path1, path2, path3, path4, path5, path6, path7, path8, path9, path10, path10Mid, path10End, path11, path12, path13, path12Mid, path12End, path8Drifted, path8Drifted2, humanPlayerToShoot, humanPlayerCollectPathFinish, leave;
 
     private void buildPaths() {
         path1 = follower.pathBuilder()
@@ -283,6 +283,26 @@ public class RedMTI21ArtifactAuto extends CommandOpMode {
                 )
                 .build();
 
+        path8Drifted2 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pose1,
+                        new Pose(collectRamp.getX(), collectRamp.getY() - 2.2, collectRamp.getHeading())
+                ))
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0,
+                                        .6,
+                                        HeadingInterpolator.tangent
+                                ),
+                                new HeadingInterpolator.PiecewiseNode(
+                                        .6,
+                                        1.0,
+                                        HeadingInterpolator.constant(collectRamp.getHeading()))
+                        )
+                )
+                .build();
+
         path9 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         collectRamp, pose1
@@ -453,7 +473,7 @@ public class RedMTI21ArtifactAuto extends CommandOpMode {
 
         leave = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        pose1, new Pose(pose1.getX() + 5, pose1.getY())
+                        pose1, new Pose(pose1.getX() + 15, pose1.getY())
                 ))
                 .setConstantHeadingInterpolation(H0)
                 .build();
@@ -545,20 +565,25 @@ public class RedMTI21ArtifactAuto extends CommandOpMode {
                 shooterSequence,
                 new FollowPathCommand(follower, path8Drifted, true),
                 new setTurretPos(turret, path9.endPose()),
+                new WaitCommand(900),
+                new FollowPathCommand(follower, path9),
+//                new WaitCommand(200),
+                shooterSequence,
+
+                new FollowPathCommand(follower, path8Drifted2, true),
+                new setTurretPos(turret, path9.endPose()),
                 new WaitCommand(1000),
                 new FollowPathCommand(follower, path9),
 //                new WaitCommand(200),
                 shooterSequence,
-//                new FollowPathCommand(follower, path8),
-//                new WaitCommand(1000),
-//                new FollowPathCommand(follower, path9),
-////                new WaitCommand(200),
-//                shooterSequence,
-                new setTurretPos(turret, path10.endPose()),
-                new FollowPathCommand(follower, path10),
-//        new FollowPathCommand(follower, path11),
-//        new WaitCommand(200),
-                shooterSequence
+
+                new FollowPathCommand(follower, leave)
+
+//                new setTurretPos(turret, path10.endPose()),
+//                new FollowPathCommand(follower, path10),
+//                shooterSequence
+
+
 //new transfer(intake, true)
 //                new FollowPathCommand(follower, leave)
 //                new FollowPathCommand

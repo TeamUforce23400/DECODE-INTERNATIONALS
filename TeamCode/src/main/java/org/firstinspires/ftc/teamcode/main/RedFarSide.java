@@ -66,21 +66,23 @@ public class RedFarSide extends CommandOpMode {
 
     private final Pose startPose = new Pose(86.1, 6.74, Math.toRadians(0));
     private final Pose pose1 = new Pose(86.1, 16, Math.toRadians(0));
-    private final Pose humanPlayerRight = new Pose(127, 8.8, Math.toRadians(40));
-    private final Pose humanPlayerRightForward = new Pose(133.3, 50, Math.toRadians(40));
+    private final Pose humanPlayerRight = new Pose(132, 7.8, Math.toRadians(50));
+    private final Pose humanPlayerRightForward = new Pose(133, 50, Math.toRadians(40));
 //    private final Pose nearMark = new Pose(120.128, 83.66);
 //    private final Pose nearShoot = new Pose(94.608, 83.138);
 //    private final Pose nearShootCP = new Pose(97.35, 66.32);
 //    private final Pose collectMiddleMarkCP = new Pose(96.025, 62.109);
 //    private final Pose collectMiddleMark = new Pose(126, 62.145);
 
-    private final Pose humanPlayerRightFirst = new Pose(133.3, 8.3, Math.toRadians(0));
+    private final Pose humanPlayerRightFirst = new Pose(136.3, 4.8, Math.toRadians(0));
+
+    private final Pose humanPlayerRightFirstDrifted = new Pose(138.3, 1.8, Math.toRadians(0));
     private final Pose collectLastMarkCP = new Pose(109.430, 37.845, Math.toRadians(-60));
     private final Pose collectLastMark = new Pose(128.360, 35.231);
 
-    private final Pose collectOverflow = new Pose(130.5, 35.1, Math.toRadians(40));
+    private final Pose collectOverflow = new Pose(130.5, 30.1, Math.toRadians(40));
 
-    private final Pose poseAfterHumanPlayer = new Pose(86.1, 16, Math.toRadians(40));
+    private final Pose poseAfterHumanPlayer = new Pose(85.8, 10, Math.toRadians(40));
 //    private final Pose collectRamp = new Pose(135.7, 59.2, Math.toRadians(26.8)); // acc 59.4 y
 //    private final Pose hp1 = new Pose(133.136, 27.088, Math.toRadians(-45));
 //    private final Pose hp2 = new Pose(136.522, 11.0639, Math.toRadians(-90));
@@ -88,7 +90,7 @@ public class RedFarSide extends CommandOpMode {
     private int loopCounter;
     private ElapsedTime elapsedtime;
 
-    private PathChain path1, path2, path3, collectOverflowRamp, overflowShoot, path4, path5, path6, path7, path8, path9, path10, path10Mid, path10End, path11, path12, path13, path12Mid, path12End, path8Drifted, humanPlayerToShoot, humanPlayerCollectPathFinish, leave;
+    private PathChain path1,path2, path3, collectOverflowRamp, overflowShoot, path4, path5, path6, path7, path8, path9, path10, path10Mid, path10End, path11, path12, path13, path12Mid, path12End, path8Drifted, humanPlayerToShoot, humanPlayerCollectPathFinish, leave, path4Drifted, path5Drifted;
 
     private void buildPaths() {
         path1 = follower.pathBuilder()
@@ -115,19 +117,19 @@ public class RedFarSide extends CommandOpMode {
         path2 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pose1,
-                        humanPlayerRight
+                        new Pose(humanPlayerRight.getX() - 5, humanPlayerRight.getY(), humanPlayerRight.getHeading())
                 ))
                 .setHeadingInterpolation(
                         HeadingInterpolator.piecewise(
                                 new HeadingInterpolator.PiecewiseNode(
                                         0,
                                         1.0,
-                                        HeadingInterpolator.constant(Math.toRadians(32))
+                                        HeadingInterpolator.linear(Math.toRadians(0), Math.toRadians(32))
                                 )
                         )
                 )
                 .addPath(new BezierLine(
-                        humanPlayerRight,
+                        new Pose(humanPlayerRight.getX() - 5, humanPlayerRight.getY(), humanPlayerRight.getHeading()),
                         humanPlayerRightForward
                 ))
                 .setHeadingInterpolation(
@@ -172,7 +174,44 @@ public class RedFarSide extends CommandOpMode {
                                 new HeadingInterpolator.PiecewiseNode(
                                         0,
                                         1.0,
-                                        HeadingInterpolator.constant(Math.toRadians(-10))
+                                        HeadingInterpolator.constant(Math.toRadians(0))
+                                )
+                        )
+                )
+                .build();
+
+        path4Drifted =  follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pose1,
+                        humanPlayerRightFirstDrifted
+                ))
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0,
+                                        1.0,
+                                        HeadingInterpolator.constant(Math.toRadians(0))
+                                )
+                        )
+                )
+                .build();
+
+        path5Drifted = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        humanPlayerRightFirstDrifted,
+                        poseAfterHumanPlayer
+                ))
+                .setHeadingInterpolation(
+                        HeadingInterpolator.piecewise(
+                                new HeadingInterpolator.PiecewiseNode(
+                                        0,
+                                        .7,
+                                        HeadingInterpolator.tangent.reverse()
+                                ),
+                                new HeadingInterpolator.PiecewiseNode(
+                                        .7,
+                                        1.0,
+                                        HeadingInterpolator.constant(H0)
                                 )
                         )
                 )
@@ -643,9 +682,11 @@ public class RedFarSide extends CommandOpMode {
         super.register(shooter);
         super.register(turret);
 
+
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
         Localization.init(follower, telemetryM);
+        turret.setTurretPos(turret.getTargetTicksFromPos(startPose));
 
         SequentialCommandGroup shooterSequence = new SequentialCommandGroup(
 //                new stationary(follower),
@@ -666,39 +707,39 @@ public class RedFarSide extends CommandOpMode {
 
         SequentialCommandGroup autonomousSequence = new SequentialCommandGroup(
                 //Preload
-                new setTurretPos(turret, startPose),
+//                new setTurretPos(turret, startPose),
                 new shooterAtSpeed(shooter),
                 shooterSequence,
 
                 //3rd Mark
                 new FollowPathCommand(follower, path10),
-                new WaitCommand(100),
                 shooterSequence,
 
                 //Human Player
-                new FollowPathCommand(follower, path4),
+                new FollowPathCommand(follower, path4).withTimeout(1300),
                 new ParallelRaceGroup(
-                        new WaitCommand(500),
+                        new WaitCommand(85),
                         new allBallsDetected(intake)
                 ),
-
-                new setTurretPos(turret, path5.endPose()),
-                new FollowPathCommand(follower, path5),
+                new ParallelCommandGroup(
+                        new setTurretPos(turret, path5.endPose()),
+                        new FollowPathCommand(follower, path5)
+                ),
 //                new FollowPathCommand(follower, path3),
-                new WaitCommand(200),
                 shooterSequence,
 
                 //Human Player
-                new FollowPathCommand(follower, path4),
+                new FollowPathCommand(follower, path4).withTimeout(1300),
                 new ParallelRaceGroup(
-                        new WaitCommand(500),
+                        new WaitCommand(85),
                         new allBallsDetected(intake)
                 ),
 
-                new setTurretPos(turret, path3.endPose()),
-                new FollowPathCommand(follower, path5),
+                new ParallelCommandGroup(
+                        new setTurretPos(turret, path3.endPose()),
+                        new FollowPathCommand(follower, path5)
+                ),
 //                new FollowPathCommand(follower, path3),
-                new WaitCommand(200),
                 shooterSequence,
 
                 //Human Player
@@ -707,28 +748,45 @@ public class RedFarSide extends CommandOpMode {
 //Human Player
                 new FollowPathCommand(follower, path2),
                 new ParallelRaceGroup(
-                        new WaitCommand(500),
+                        new WaitCommand(85),
                         new allBallsDetected(intake)
                 ),
 
-                new setTurretPos(turret, path3.endPose()),
-                new FollowPathCommand(follower, path3),
+                new ParallelCommandGroup(
+                        new setTurretPos(turret, path5.endPose()),
+                        new FollowPathCommand(follower, path3)
+                ),
 //                new FollowPathCommand(follower, path3),
-                new WaitCommand(200),
                 shooterSequence,
 
-                new FollowPathCommand(follower, path4),
+                new FollowPathCommand(follower, path4Drifted).withTimeout(1300),
                 new ParallelRaceGroup(
-                        new WaitCommand(500),
+                        new WaitCommand(100),
                         new allBallsDetected(intake)
                 ),
 
 
-                new setTurretPos(turret, path5.endPose()),
-                new FollowPathCommand(follower, path5),
+                new ParallelCommandGroup(
+                        new setTurretPos(turret, path5.endPose()),
+                        new FollowPathCommand(follower, path5Drifted)
+                ),
 //                new FollowPathCommand(follower, path3),
-                new WaitCommand(200),
                 shooterSequence,
+
+                new FollowPathCommand(follower, path4Drifted).withTimeout(1300),
+                new ParallelRaceGroup(
+                        new WaitCommand(85),
+                        new allBallsDetected(intake)
+                ),
+
+
+                new ParallelCommandGroup(
+                        new setTurretPos(turret, path5.endPose()),
+                        new FollowPathCommand(follower, path5Drifted)
+                ),
+//                new FollowPathCommand(follower, path3),
+                shooterSequence,
+
 
 //Human Player
                 new FollowPathCommand(follower, path4)

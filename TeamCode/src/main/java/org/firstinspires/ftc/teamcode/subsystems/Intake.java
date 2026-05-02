@@ -19,7 +19,7 @@ public class Intake extends SubsystemBase {
     private static final double AUTO_STOP_CURRENT_AMPS = 5.0;
     private static final double DEFAULT_INTAKE_POWER = 1.0;
     private final Timer timer = new Timer();
-    private static final double SLOW_TRANSFER_POWER = 0.7;
+    private static final double SLOW_TRANSFER_POWER = 0.8;
     private static final double STOPPER_SHOOT_POS = 0.35;
     private static final double STOPPER_HOLD_POS = 0.48;
 
