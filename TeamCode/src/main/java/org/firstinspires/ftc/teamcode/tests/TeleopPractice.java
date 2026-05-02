@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.tests;
 
+import static org.firstinspires.ftc.teamcode.globals.Localization.getGoalDistance;
 import static org.firstinspires.ftc.teamcode.globals.Localization.getHeading;
 import static org.firstinspires.ftc.teamcode.globals.Localization.getPose;
 import static org.firstinspires.ftc.teamcode.globals.Localization.getRedDistance;
+import static org.firstinspires.ftc.teamcode.globals.RobotConstants.chosenAlliance;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.farRedGoalPose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.intakeBlueRamp;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.intakeRedRamp;
@@ -70,7 +72,7 @@ public class TeleopPractice extends OpMode {
     public void init() {
         elapsedtime = new ElapsedTime();
         elapsedtime.reset();
-        Shooter.landAngle = Math.toRadians(-10);
+        Shooter.landAngle = Math.toRadians(-15);
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         sh = hardwareMap.get(DcMotorEx.class, "rsh");
         closeLaunchZone = new PolygonZone(new Point(144, 144), new Point(72, 72), new Point(0, 144));
@@ -93,7 +95,7 @@ public class TeleopPractice extends OpMode {
             follower.setStartingPose(savedPose);
         } else {
 //        follower.setStartingPose(savedPose != null ? savedPose : new Pose(88,75,Math.toRadians(0)));
-            follower.setStartingPose(new Pose(89, 78, Math.toRadians(0)));
+            follower.setStartingPose(new Pose(104, 78, Math.toRadians(0)));
         }
         Localization.init(follower, telemetryM);
         telemetryM.addLine("Initialized");
@@ -119,26 +121,26 @@ public class TeleopPractice extends OpMode {
 //        robotZone.setPosition(follower.getPose().getX(), follower.getPose().getY());
 //        robotZone.setRotation(follower.getPose().getHeading());
         double shotDistance = follower.getPose().distanceFrom(redGoalPose);
-        double actualShotSpeed = Math.abs(0.5 * (sh.getVelocity() - sh2.getVelocity()));
-        double compensatedHoodPos = Shooter.getLowAngleHoodFromDistanceAndSpeed(shotDistance, actualShotSpeed);
+        double actualShotSpeed = sh.getVelocity();
+
+        if (shotDistance > 100) {
+            Shooter.landAngle = Math.toRadians(-20);
+            Shooter.powerConstant = 2.3;
+        }
+        else {
+            Shooter.landAngle = Math.toRadians(-10);
+            Shooter.powerConstant = 2.42;
+        }
+
         double[] coefficients = Shooter.getCoefficientsFromDistance(shotDistance);
-        targetVelocity = coefficients[1] - 40;
-        if (Math.abs(actualShotSpeed - targetVelocity) > 30) {
-            hoodPos = Shooter.getLowAngleHoodFromDistanceAndSpeed(shotDistance, sh.getVelocity());
+        targetVelocity = coefficients[1];
+        if (Math.abs(actualShotSpeed - targetVelocity) > 40 && (shotDistance < 100)) {
+            hoodPos = Shooter.getLowAngleHoodFromDistanceAndSpeed(shotDistance, actualShotSpeed);
         } else {
             hoodPos = coefficients[0];
         }
+
         shooter.setHood(hoodPos);
-
-        if (Math.max(0, getRedDistance() - 110)>0){
-            redGoalPose = farRedGoalPose;
-            targetVelocity += 110;
-        }
-
-        else {
-            redGoalPose = new Pose (141, 141, Math.toRadians(90));
-        }
-
 
         velocity1 = sh.getVelocity();
         velocity2 = sh2.getVelocity();
@@ -250,7 +252,6 @@ public class TeleopPractice extends OpMode {
                 true
         );
         if (gamepad1.a) {
-            hoodPos = compensatedHoodPos;
             shooter.setHood(hoodPos);
             intake.intake1On();
         }
@@ -266,7 +267,7 @@ public class TeleopPractice extends OpMode {
             intake.setStopper(0.35);
             double farExtraInches = Math.max(0, getRedDistance() - 110);
             if(farExtraInches > 0) {
-                intake.onSpeed(1.0);
+                intake.onSpeed(0.8);
             }
             else {
                 intake.onSpeed(1);

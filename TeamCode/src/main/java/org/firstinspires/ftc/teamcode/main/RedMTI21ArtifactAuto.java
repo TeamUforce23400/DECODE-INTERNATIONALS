@@ -266,7 +266,7 @@ public class RedMTI21ArtifactAuto extends CommandOpMode {
         path8Drifted = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pose1,
-                        new Pose(collectRamp.getX(), collectRamp.getY() - 2.05, collectRamp.getHeading())
+                        new Pose(collectRamp.getX(), collectRamp.getY() - 2.25, collectRamp.getHeading())
                 ))
                 .setHeadingInterpolation(
                         HeadingInterpolator.piecewise(
@@ -286,7 +286,7 @@ public class RedMTI21ArtifactAuto extends CommandOpMode {
         path8Drifted2 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pose1,
-                        new Pose(collectRamp.getX(), collectRamp.getY() - 2.2, collectRamp.getHeading())
+                        new Pose(collectRamp.getX(), collectRamp.getY() - 2.25, collectRamp.getHeading())
                 ))
                 .setHeadingInterpolation(
                         HeadingInterpolator.piecewise(
