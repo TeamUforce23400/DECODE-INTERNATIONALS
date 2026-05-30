@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.testModes;
 
+import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower;
+
 import android.annotation.SuppressLint;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -14,12 +17,13 @@ import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.util.TelemetryGroup;
 
 @Configurable
-@TeleOp(name = "Intake Testmode", group = "TeleOp")
+@TeleOp(name = "Intake Testing", group = "TeleOp")
 public class IntakeTesting extends OpMode {
 
     private TelemetryManager telemetryM;
     private TelemetryGroup telemetryGroup;
     private Intake intake;
+    private Follower follower;
 
     public double intakePower = 0.0;
     public double transferPower = 0.0;
@@ -28,6 +32,7 @@ public class IntakeTesting extends OpMode {
     @Override
     public void init() {
         intake = new Intake(hardwareMap);
+        follower = createFollower(hardwareMap);
 
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         telemetryGroup = new TelemetryGroup(telemetry, telemetryM);
@@ -35,12 +40,21 @@ public class IntakeTesting extends OpMode {
 
     @Override
     public void start() {
-        telemetryGroup.addData("Intake Testmode:", "INITIALIZED");
+        follower.startTeleOpDrive(true);
+
+        telemetryGroup.addData("Intake Test OpMode:", "INITIALIZED");
         telemetryGroup.update();
     }
 
     @Override
     public void loop() {
+        follower.setTeleOpDrive(
+                -gamepad1.left_stick_y,
+                -gamepad1.left_stick_x,
+                -gamepad1.right_stick_x,
+                true
+        );
+
         if (gamepad1.a) {
             intakePower = 1.0;
         }
