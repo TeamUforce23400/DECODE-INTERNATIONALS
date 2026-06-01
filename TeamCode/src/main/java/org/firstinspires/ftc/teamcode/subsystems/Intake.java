@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.globals.RobotConstants.disengagePos;
-import static org.firstinspires.ftc.teamcode.globals.RobotConstants.engagePos;
+
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.TelemetryManager;
@@ -9,30 +8,37 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
+import com.seattlesolvers.solverslib.hardware.servos.ServoExGroup;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 @Configurable
 public class Intake extends SubsystemBase {
 
-    public final DcMotorEx intake;
-    public final DcMotorEx transfer;
-    private final ServoEx stopper;
+    public final DcMotorEx intakeRight;
+    public final DcMotorEx intakeLeft;
+    private final ServoEx stopperRight;
+    private final ServoEx stopperLeft;
+    private final ServoExGroup stopper;
 
     public final double openPos = 0; // TODO: This will be your stopper open position.
     public final double closePos = 1; // TODO: This will be your stopper close position.
 
     public Intake(HardwareMap hardwareMap, TelemetryManager telemetryManager) {
-        intake = hardwareMap.get(DcMotorEx.class, "intake");
-        transfer = hardwareMap.get(DcMotorEx.class, "transfer");
+        intakeRight = hardwareMap.get(DcMotorEx.class, "inr");
+        intakeLeft = hardwareMap.get(DcMotorEx.class, "inl");
 
-        stopper = new ServoEx(hardwareMap, "servo");
+        stopperRight = new ServoEx(hardwareMap, "servoRight");
+        stopperLeft = new ServoEx(hardwareMap, "servoLeft");
+        stopper = new ServoExGroup(stopperLeft,stopperRight);
 
-        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeLeft.setDirection(DcMotor.Direction.REVERSE);
     }
 
     @Override
@@ -40,16 +46,16 @@ public class Intake extends SubsystemBase {
     }
 
     public void powerIntake(double power) {
-        intake.setPower(power);
+        intakeRight.setPower(power);
     }
 
     public void powerTransfer(double power) {
-        transfer.setPower(power);
+        intakeLeft.setPower(power);
     }
 
     public void powerFullIntake(double power) {
-        intake.setPower(power);
-        transfer.setPower(power);
+        intakeLeft.setPower(power);
+        intakeRight.setPower(power);
     }
 
     public void openStopper(boolean open) {

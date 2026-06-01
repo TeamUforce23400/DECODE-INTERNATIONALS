@@ -16,8 +16,10 @@ import org.firstinspires.ftc.teamcode.globals.Localization;
 
 @Configurable
 public class Turret extends SubsystemBase {
-    public final ServoEx servoRight;
-    public final ServoEx servoLeft;
+    public final ServoEx servoRightFront;
+    public final ServoEx servoLeftFront;
+    public final ServoEx servoRightBack;
+    public final ServoEx servoLeftBack;
     public final ServoExGroup turretServos;
 
     // Turret heading + Servo variables
@@ -28,12 +30,16 @@ public class Turret extends SubsystemBase {
     public final double maxPosServos = 1; // TODO: At 2pi (360 degrees from 0 pos of servos), check the position of servos and set it to this variable.
 
     public Turret(HardwareMap hardwareMap) {
-        servoRight = new ServoEx(hardwareMap, "turretRight");
-        servoLeft = new ServoEx(hardwareMap, "turretLeft");
+        servoRightFront = new ServoEx(hardwareMap, "trf");
+        servoLeftFront = new ServoEx(hardwareMap, "tlf");
+        servoRightBack = new ServoEx(hardwareMap, "trr");
+        servoLeftBack = new ServoEx(hardwareMap, "tlf");
 
-        turretServos = new ServoExGroup(servoRight, servoLeft);
+        turretServos = new ServoExGroup(servoRightFront, servoLeftFront, servoRightBack, servoLeftBack);
 
         // TODO: Make sure both servo values increase/decrease together, otherwise use the .inverted(true) method.
+        servoLeftBack.setInverted(true);
+        servoRightFront.setInverted(true);
     }
 
 
