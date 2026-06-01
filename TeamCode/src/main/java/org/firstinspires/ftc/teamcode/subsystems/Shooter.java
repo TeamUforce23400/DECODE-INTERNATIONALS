@@ -33,16 +33,16 @@ public class Shooter extends SubsystemBase {
     public double shooterDistanceBias = 0; // In meters; best to keep at 0; you should only use if there is a genuine bias and not a power constants issue.
 
     // The variable names are kind of unintuitive here, but it should be fine as long as you set the constants properly.
-    // IMPORTANT: A lower hood angle means that the hood is less curved (much higher shots). A higher hood angle means that the hood is more curved (lower shots).
+    // IMPORTANT: A lower hood angle means that the hood is less curved (much higher shots - more curved trajectory). A higher hood angle means that the hood is more curved (lower shots - flatter trajectory).
     // IMPORTANT: The hood angle degrees is going to be measured from the horizontal, NOT vertical.
     // You can either do this manually using a protractor and measuring the exact moment the ball is launched (should be approx. center of the ball).
     // OR you can check the CAD and do this (with the CAD measurement method, you need to make sure that the hood is set to the same position as the servo position in real life).
 
-    public double minimumHoodPos = 0; // TODO: This will be your minimum hood servo position, at minimum hood angle degree (for example, servo position 0 at launch angle 80 degrees - lower hood angle, higher shots).
-    public double maximumHoodPos = 1; // TODO: This will be your maximum hood servo position, at maximum hood angle degree (for example, servo position 1 at launch angle 20 degrees - higher hood angle, lower shots).
+    public double minimumHoodPos = 0; // TODO: This will be your minimum hood servo position, at minimum hood angle degree (for example, servo position 0 at launch angle 80 degrees - lower hood angle, higher shots, higher trajectory).
+    public double maximumHoodPos = 1; // TODO: This will be your maximum hood servo position, at maximum hood angle degree (for example, servo position 1 at launch angle 20 degrees - higher hood angle, lower shots, flatter trajectory).
     // Change the values inside the brackets in degrees; it will be converted to radians.
-    public double minHoodPosRad = Math.toRadians(80); // TODO: This should be the launch angle of the ball when the hood servo is at minimum hood position (higher shots).
-    public double maxHoodPosRad = Math.toRadians(20); // TODO: This should be the launch angle of the ball when the hood servo is at maximum hood position (more curved path/direct shots).
+    public double minHoodPosRad = Math.toRadians(80); // TODO: This should be the launch angle of the ball when the hood servo is at minimum hood position (higher shots, higher trajectory).
+    public double maxHoodPosRad = Math.toRadians(20); // TODO: This should be the launch angle of the ball when the hood servo is at maximum hood position (more curved path/direct shots, flatter trajectory).
 
     private PIDFController controllerRight;
     private PIDFController controllerLeft;
@@ -51,7 +51,7 @@ public class Shooter extends SubsystemBase {
     public final double kV = 0;
     public final double kS = 0;
     public Shooter(HardwareMap hardwareMap) {
-        // TODO: The directions are relative to when the shooter is facing away from you.
+        // TODO: The directions are relative to when the shooter is facing away from you - towards the front of the field/goal.
         shooterRight = hardwareMap.get(DcMotorEx.class, "shooterRight");
         shooterLeft = hardwareMap.get(DcMotorEx.class, "shooterLeft");
         hood = new ServoEx(hardwareMap, "hood");
@@ -64,7 +64,7 @@ public class Shooter extends SubsystemBase {
         controllerRight.setFeedforward(kV, 0.0, kS);
         controllerLeft.setFeedforward(kV, 0.0, kS);
         // TODO: Make sure both the motors tick together (both should have positive encoder ticks together). If not, then use .setDirection() method.
-        // TODO: Hood servo position must increase as the hood curve increases (angle decreases); for example, 0-->1, 80deg --> 20deg.
+        // TODO: Hood servo position must increase as the hood curve increases (angle decreases, flatter trajectory); for example, 0-->1, 80deg --> 20deg.
     }
 
     @Override

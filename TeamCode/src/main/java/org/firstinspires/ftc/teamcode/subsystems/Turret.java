@@ -24,7 +24,7 @@ public class Turret extends SubsystemBase {
 
     // Turret heading + Servo variables
     // IMPORTANT: BOTH THE SERVOS MUST BE SYNCHRONIZED POSITION WISE.
-    public final double minimumValueRad = 0; // TODO: Make sure that at pos 0 of servos, the turret is facing you if robot is facing away (away from the front of the robot/facing backwards);
+    public final double minimumValueRad = 0; // TODO: Make sure that at pos 0 of servos, the turret is facing you when the robot is facing away (away from the front of the robot/facing backwards);
     public final double maximumValueRad = 2*Math.PI;
     public final double minPosServos = 0;
     public final double maxPosServos = 1; // TODO: At 2pi (360 degrees from 0 pos of servos), check the position of servos and set it to this variable.
