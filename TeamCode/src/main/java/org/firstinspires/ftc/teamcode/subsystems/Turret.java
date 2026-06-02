@@ -38,8 +38,10 @@ public class Turret extends SubsystemBase {
         turretServos = new ServoExGroup(servoRightFront, servoLeftFront, servoRightBack, servoLeftBack);
 
         // TODO: Make sure both servo values increase/decrease together, otherwise use the .inverted(true) method.
-        servoLeftBack.setInverted(true);
+        servoLeftFront.setInverted(true);
         servoRightFront.setInverted(true);
+        servoLeftBack.setInverted(true);
+        servoRightBack.setInverted(true);
     }
 
 
