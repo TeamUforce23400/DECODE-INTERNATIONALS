@@ -52,7 +52,7 @@ public class Turret extends SubsystemBase {
 
         double targetPos = headingToTurretPos(calculateTargetHeading(robotPos, goalPose));
 
-        if ((targetPos + getServoPosition())/2 > 0.25) {
+        if (Math.abs((getServoPosition() - targetPos)/2) > 0.25) {
             targetPos = (targetPos + getServoPosition())/2;
         }
         turretServos.set(targetPos);
