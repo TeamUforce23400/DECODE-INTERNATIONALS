@@ -36,8 +36,13 @@ public class Turret extends SubsystemBase {
         servoRightBack = new ServoEx(hardwareMap, "trr");
         servoLeftBack = new ServoEx(hardwareMap, "tlr");
 
+        PwmControl.PwmRange turretPwmRange = new PwmControl.PwmRange(500, 2500);
+        servoRightFront.setPwm(turretPwmRange);
+        servoLeftFront.setPwm(turretPwmRange);
+        servoRightBack.setPwm(turretPwmRange);
+        servoLeftBack.setPwm(turretPwmRange);
+
         turretServos = new ServoExGroup(servoRightFront, servoLeftFront, servoRightBack, servoLeftBack);
-        turretServos.setPwm(new PwmControl.PwmRange(500,2500));
 
 
         // TODO: Make sure both servo values increase/decrease together, otherwise use the .inverted(true) method.
