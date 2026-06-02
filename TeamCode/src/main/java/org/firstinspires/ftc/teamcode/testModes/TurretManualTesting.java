@@ -50,7 +50,7 @@ public class TurretManualTesting extends OpMode {
     public void start() {
         follower.startTeleOpDrive(true);
 
-        telemetryGroup.addData("Turret Test OpMode:", "INITIALIZED");
+        telemetryGroup.addData("Turret Manual Test OpMode:", "INITIALIZED");
         telemetryGroup.update();
     }
 

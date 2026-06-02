@@ -19,8 +19,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 @Configurable
 public class Intake extends SubsystemBase {
 
-    public final DcMotorEx intakeRight;
-    public final DcMotorEx intakeLeft;
+    public final DcMotorEx intake;
+    public final DcMotorEx transfer;
     private final ServoEx stopperRight;
     private final ServoEx stopperLeft;
     private final ServoExGroup stopper;
@@ -29,16 +29,16 @@ public class Intake extends SubsystemBase {
     public final double closePos = 1; // TODO: This will be your stopper close position.
 
     public Intake(HardwareMap hardwareMap, TelemetryManager telemetryManager) {
-        intakeRight = hardwareMap.get(DcMotorEx.class, "inr");
-        intakeLeft = hardwareMap.get(DcMotorEx.class, "inl");
+        intake = hardwareMap.get(DcMotorEx.class, "inr");
+        transfer = hardwareMap.get(DcMotorEx.class, "inl");
 
         stopperRight = new ServoEx(hardwareMap, "servoRight");
         stopperLeft = new ServoEx(hardwareMap, "servoLeft");
-        stopper = new ServoExGroup(stopperLeft,stopperRight);
+        stopper = new ServoExGroup(stopperLeft, stopperRight);
 
-        intakeRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intakeLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intakeLeft.setDirection(DcMotor.Direction.REVERSE);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        transfer.setDirection(DcMotor.Direction.REVERSE);
     }
 
     @Override
@@ -46,16 +46,16 @@ public class Intake extends SubsystemBase {
     }
 
     public void powerIntake(double power) {
-        intakeRight.setPower(power);
+        intake.setPower(power);
     }
 
     public void powerTransfer(double power) {
-        intakeLeft.setPower(power);
+        transfer.setPower(power);
     }
 
     public void powerFullIntake(double power) {
-        intakeLeft.setPower(power);
-        intakeRight.setPower(power);
+        transfer.setPower(power);
+        intake.setPower(power);
     }
 
     public void openStopper(boolean open) {
@@ -64,6 +64,22 @@ public class Intake extends SubsystemBase {
         } else {
             stopper.set(closePos);
         }
+    }
+
+    public void setStopper(double position) {
+        stopper.set(position);
+    }
+
+    public double getIntakePower() {
+        return intake.getPower();
+    }
+
+    public double getTransferPower() {
+        return transfer.getPower();
+    }
+
+    public double getStopperPosition() {
+        return stopper.getRawPosition();
     }
 
 }
