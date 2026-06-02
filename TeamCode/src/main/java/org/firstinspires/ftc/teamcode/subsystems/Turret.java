@@ -74,4 +74,8 @@ public class Turret extends SubsystemBase {
         return servoLeftBack.getRawPosition();
     }
 
+    public void setPosition(double position) {
+        turretServos.set(position);
+    }
+
 }
