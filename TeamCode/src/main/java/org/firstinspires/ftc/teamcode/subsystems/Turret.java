@@ -27,7 +27,7 @@ public class Turret extends SubsystemBase {
     public final double minimumValueRad = 0; // TODO: Make sure that at pos 0 of servos, the turret is facing you when the robot is facing away (away from the front of the robot/facing backwards);
     public final double maximumValueRad = 2*Math.PI;
     public final double minPosServos = 0;
-    public final double maxPosServos = 1; // TODO: At 2pi (360 degrees from 0 pos of servos), check the position of servos and set it to this variable.
+    public final double maxPosServos = 0.913; // TODO: At 2pi (360 degrees from 0 pos of servos), check the position of servos and set it to this variable.
 
     public Turret(HardwareMap hardwareMap) {
         servoRightFront = new ServoEx(hardwareMap, "trf");
@@ -48,7 +48,12 @@ public class Turret extends SubsystemBase {
         Pose robotPos = Localization.getPose();
         Pose goalPose = chosenAlliance.equals("RED") ? redGoalPose : blueGoalPose;
 
-        turretServos.set(headingToTurretPos(calculateTargetHeading(robotPos, goalPose)));
+        double targetPos = headingToTurretPos(calculateTargetHeading(robotPos, goalPose));
+
+        if ((targetPos + getServoPosition())/2 > 0.25) {
+            targetPos = (targetPos + getServoPosition())/2;
+        }
+        turretServos.set(targetPos);
     }
 
     public double calculateTargetHeading(Pose robotPos, Pose goalPose) {
