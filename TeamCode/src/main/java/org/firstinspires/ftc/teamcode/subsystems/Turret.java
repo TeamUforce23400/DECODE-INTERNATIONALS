@@ -70,4 +70,8 @@ public class Turret extends SubsystemBase {
         return ((maxPosServos - minPosServos)*(heading - minimumValueRad)/(maximumValueRad-minimumValueRad)) + minPosServos;
     }
 
+    public double getServoPosition() {
+        return servoLeftBack.getRawPosition();
+    }
+
 }
