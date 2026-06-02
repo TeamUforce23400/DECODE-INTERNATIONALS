@@ -36,7 +36,7 @@ public class Turret extends SubsystemBase {
         servoRightBack = new ServoEx(hardwareMap, "trr");
         servoLeftBack = new ServoEx(hardwareMap, "tlr");
 
-        PwmControl.PwmRange turretPwmRange = new PwmControl.PwmRange(500, 2500);
+        PwmControl.PwmRange turretPwmRange = new PwmControl.PwmRange(600, 2400);
         servoRightFront.setPwm(turretPwmRange);
         servoLeftFront.setPwm(turretPwmRange);
         servoRightBack.setPwm(turretPwmRange);

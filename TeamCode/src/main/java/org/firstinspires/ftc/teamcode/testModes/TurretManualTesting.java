@@ -67,7 +67,7 @@ public class TurretManualTesting extends OpMode {
         );
 
         if (gamepad1.dpadLeftWasPressed()) {
-            targetPosition += 0.05;
+            targetPosition += 0.005;
         } else if (gamepad1.dpadRightWasPressed()) {
             targetPosition -= 0.005;
         }
