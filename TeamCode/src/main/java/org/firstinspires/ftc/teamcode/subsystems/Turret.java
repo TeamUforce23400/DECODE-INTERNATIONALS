@@ -33,7 +33,7 @@ public class Turret extends SubsystemBase {
         servoRightFront = new ServoEx(hardwareMap, "trf");
         servoLeftFront = new ServoEx(hardwareMap, "tlf");
         servoRightBack = new ServoEx(hardwareMap, "trr");
-        servoLeftBack = new ServoEx(hardwareMap, "tlf");
+        servoLeftBack = new ServoEx(hardwareMap, "tlr");
 
         turretServos = new ServoExGroup(servoRightFront, servoLeftFront, servoRightBack, servoLeftBack);
 
