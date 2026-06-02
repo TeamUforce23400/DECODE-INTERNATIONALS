@@ -34,8 +34,8 @@ public class TeleopDebugMotors extends LinearOpMode {
 
         servoRightFront.setDirection(Servo.Direction.REVERSE);
         servoRightBack.setDirection(Servo.Direction.REVERSE);
-        servoLeftBack.setDirection(Servo.Direction.FORWARD);
-        servoLeftFront.setDirection(Servo.Direction.FORWARD);
+        servoLeftBack.setDirection(Servo.Direction.REVERSE);
+        servoLeftFront.setDirection(Servo.Direction.REVERSE);
 
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
