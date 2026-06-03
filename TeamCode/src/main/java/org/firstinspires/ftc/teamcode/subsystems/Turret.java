@@ -17,18 +17,28 @@ import org.firstinspires.ftc.teamcode.globals.Localization;
 
 @Configurable
 public class Turret extends SubsystemBase {
+
     public final ServoEx servoRightFront;
     public final ServoEx servoLeftFront;
     public final ServoEx servoRightBack;
     public final ServoEx servoLeftBack;
     public final ServoExGroup turretServos;
 
-    // Turret heading + Servo variables
-    // IMPORTANT: BOTH THE SERVOS MUST BE SYNCHRONIZED POSITION WISE.
-    public final double minimumValueRad = 0; // TODO: Make sure that at pos 0 of servos, the turret is facing you when the robot is facing away (away from the front of the robot/facing backwards);
-    public final double maximumValueRad = 2*Math.PI;
-    public final double minPosServos = 0;
-    public final double maxPosServos = 0.913; // TODO: At 2pi (360 degrees from 0 pos of servos), check the position of servos and set it to this variable.
+    public final double minimumValueRad = 0;
+    public final double maximumValueRad = (400.0/180.0) * Math.PI; //Update degrees value (400 currently) incase of turret rotation angle change
+
+    public final double minPosServos = 0.0;
+    public final double maxPosServos = 1.0 ;
+
+    public static double maxStepPerLoop = 0.015;
+
+    public static double wrapLow = 0.05;
+    public static double wrapHigh = 0.95;
+    public static double safeMiddle = 0.5;
+
+    private double currentServoPosition = 0.5;
+    private double finalTargetPosition = 0.5;
+    private boolean routingThroughMiddle = false;
 
     public Turret(HardwareMap hardwareMap) {
         servoRightFront = new ServoEx(hardwareMap, "trf");
@@ -37,41 +47,73 @@ public class Turret extends SubsystemBase {
         servoLeftBack = new ServoEx(hardwareMap, "tlr");
 
         PwmControl.PwmRange turretPwmRange = new PwmControl.PwmRange(500, 2500);
+
         servoRightFront.setPwm(turretPwmRange);
         servoLeftFront.setPwm(turretPwmRange);
         servoRightBack.setPwm(turretPwmRange);
         servoLeftBack.setPwm(turretPwmRange);
 
-        turretServos = new ServoExGroup(servoRightFront, servoLeftFront, servoRightBack, servoLeftBack);
+        turretServos = new ServoExGroup(
+                servoRightFront,
+                servoLeftFront,
+                servoRightBack,
+                servoLeftBack
+        );
 
-
-        // TODO: Make sure both servo values increase/decrease together, otherwise use the .inverted(true) method.
         servoLeftFront.setInverted(true);
         servoRightFront.setInverted(true);
         servoLeftBack.setInverted(true);
         servoRightBack.setInverted(true);
-    }
 
+        turretServos.set(currentServoPosition);
+    }
 
     @Override
     public void periodic() {
         Pose robotPos = Localization.getPose();
-        Pose goalPose = chosenAlliance.equals("RED") ? redGoalPose : blueGoalPose;
+        Pose goalPose = chosenAlliance.equals("RED")
+                ? redGoalPose
+                : blueGoalPose;
 
-        double targetPos = headingToTurretPos(calculateTargetHeading(robotPos, goalPose));
+        double targetHeading = calculateTargetHeading(robotPos, goalPose);
+        double targetServoPosition = headingToTurretPos(targetHeading);
 
-        turretServos.set(targetPos);
+        targetServoPosition = clamp(targetServoPosition);
+
+        updateSafeTarget(targetServoPosition);
+
+        double activeTarget = routingThroughMiddle
+                ? safeMiddle
+                : finalTargetPosition;
+
+        currentServoPosition = moveToward(
+                currentServoPosition,
+                activeTarget,
+                maxStepPerLoop
+        );
+
+        if (routingThroughMiddle
+                && Math.abs(currentServoPosition - safeMiddle) < 0.02) {
+            routingThroughMiddle = false;
+        }
+
+        turretServos.set(currentServoPosition);
     }
 
     public double calculateTargetHeading(Pose robotPos, Pose goalPose) {
-        double absoluteTargetHeading = Math.atan2(goalPose.getY() - robotPos.getY(), goalPose.getX() - robotPos.getX());
+        double absoluteTargetHeading = Math.atan2(
+                goalPose.getY() - robotPos.getY(),
+                goalPose.getX() - robotPos.getX()
+        );
+
         double robotHeading = robotPos.getHeading();
-        double targetHeading = (absoluteTargetHeading - robotHeading) + Math.PI;
+
+        double targetHeading =
+                absoluteTargetHeading - robotHeading + Math.PI;
 
         if (targetHeading >= 2 * Math.PI) {
             targetHeading -= 2 * Math.PI;
-        }
-        else if (targetHeading < 0) {
+        } else if (targetHeading < 0) {
             targetHeading += 2 * Math.PI;
         }
 
@@ -79,15 +121,68 @@ public class Turret extends SubsystemBase {
     }
 
     public double headingToTurretPos(double heading) {
-        return ((maxPosServos - minPosServos)*(heading - minimumValueRad)/(maximumValueRad-minimumValueRad)) + minPosServos;
+        return ((maxPosServos - minPosServos)
+                * (heading - minimumValueRad)
+                / (maximumValueRad - minimumValueRad))
+                + minPosServos;
+    }
+
+    private void updateSafeTarget(double newTarget) {
+        boolean currentNearMin = currentServoPosition < wrapLow;
+        boolean currentNearMax = currentServoPosition > wrapHigh;
+
+        boolean targetNearMin = newTarget < wrapLow;
+        boolean targetNearMax = newTarget > wrapHigh;
+
+        boolean unsafeCross =
+                (currentNearMin && targetNearMax)
+                        || (currentNearMax && targetNearMin);
+
+        finalTargetPosition = newTarget;
+
+        if (unsafeCross) {
+            routingThroughMiddle = true;
+        }
+    }
+
+    private double moveToward(double current, double target, double maxStep) {
+        double error = target - current;
+
+        if (Math.abs(error) <= maxStep) {
+            return target;
+        }
+
+        return current + Math.signum(error) * maxStep;
+    }
+
+    private double clamp(double position) {
+        return Math.max(minPosServos, Math.min(maxPosServos, position));
     }
 
     public double getServoPosition() {
-        return servoLeftBack.getRawPosition();
+        return currentServoPosition;
     }
 
     public void setPosition(double position) {
-        turretServos.set(position);
-    }
+        position = clamp(position);
 
+        updateSafeTarget(position);
+
+        double activeTarget = routingThroughMiddle
+                ? safeMiddle
+                : finalTargetPosition;
+
+        currentServoPosition = moveToward(
+                currentServoPosition,
+                activeTarget,
+                maxStepPerLoop
+        );
+
+        if (routingThroughMiddle
+                && Math.abs(currentServoPosition - safeMiddle) < 0.02) {
+            routingThroughMiddle = false;
+        }
+
+        turretServos.set(currentServoPosition);
+    }
 }
