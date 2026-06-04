@@ -56,7 +56,6 @@ public class ShooterPIDTuning extends OpMode {
 
         allHubs = hardwareMap.getAll(LynxModule.class);
 
-        turret = new Turret(hardwareMap);
         shooter = new Shooter(hardwareMap);
 
         follower = createFollower(hardwareMap);
@@ -127,15 +126,11 @@ public class ShooterPIDTuning extends OpMode {
             targetVelocity = shooter.getTicksFromBallSpeed(coefficients[0]);
         }
 
-
-        turret.periodic();
-
         double errorRight = targetVelocity - shooter.shooterRight.getVelocity();
         double errorLeft = targetVelocity - shooter.shooterLeft.getVelocity();
         shooter.shooterRight.setPower(shooter.controllerRight.calculate(errorRight, targetVelocity, 0.0));
         shooter.shooterLeft.setPower(shooter.controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
 
-        double targetHeading = turret.calculateTargetHeading(robotPose, goalPose);
 
         telemetryGroup.addData("Robot Pose", robotPose);
         telemetryGroup.addData("Shot Distance M", shotDistanceMeters);
@@ -149,10 +144,6 @@ public class ShooterPIDTuning extends OpMode {
         telemetryGroup.addData("Target Velocity", targetVelocity);
         telemetryGroup.addData("Right Velocity", actualVelocityRight);
         telemetryGroup.addData("Left Velocity", actualVelocityLeft);
-
-        telemetryGroup.addData("Turret Target Heading Rad", targetHeading);
-        telemetryGroup.addData("Target Servo Position", turret.headingToTurretPos(targetHeading));
-        telemetryGroup.addData("Current Servo Position", turret.getServoPosition());
 
         telemetryGroup.update();
     }
