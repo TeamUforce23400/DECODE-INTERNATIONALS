@@ -13,7 +13,6 @@ public class RobotConstants {
 
     public static String chosenAlliance = "RED";
 
-    public static int maxEPT = 1900;
 
 
 

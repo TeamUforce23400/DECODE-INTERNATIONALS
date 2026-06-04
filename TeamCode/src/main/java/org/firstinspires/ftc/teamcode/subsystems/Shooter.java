@@ -44,8 +44,8 @@ public class Shooter extends SubsystemBase {
     public double minHoodPosRad = Math.toRadians(80); // TODO: This should be the launch angle of the ball when the hood servo is at minimum hood position (higher shots, higher trajectory).
     public double maxHoodPosRad = Math.toRadians(20); // TODO: This should be the launch angle of the ball when the hood servo is at maximum hood position (more curved path/direct shots, flatter trajectory).
 
-    private PIDFController controllerRight;
-    private PIDFController controllerLeft;
+    public PIDFController controllerRight;
+    public PIDFController controllerLeft;
     public final double P = 0;
     public final double I = 0;
     public final double kV = 0;
