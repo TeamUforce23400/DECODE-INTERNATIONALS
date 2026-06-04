@@ -38,7 +38,6 @@ public class ShooterPIDTuning extends OpMode {
     public Pose goalPose;
 
     public static double targetVelocity = 0;
-    public static double hoodPos = 0.7;
 
     public static boolean autoShooter = false;
     public static double P = 0;
@@ -64,8 +63,6 @@ public class ShooterPIDTuning extends OpMode {
 
         chosenAlliance = "RED";
         goalPose = chosenAlliance.equals("RED") ? redGoalPose : blueGoalPose;
-
-        shooter.hood.set(hoodPos);
 
         targetVelocity = 0;
         autoShooter = false;
