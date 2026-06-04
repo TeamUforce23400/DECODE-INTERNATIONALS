@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.testModes;
 import static org.firstinspires.ftc.teamcode.globals.Localization.getPose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.blueGoalPose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.chosenAlliance;
-import static org.firstinspires.ftc.teamcode.globals.RobotConstants.maxEPT;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.redGoalPose;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower;
 
@@ -18,6 +17,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.globals.Localization;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
 import org.firstinspires.ftc.teamcode.subsystems.Turret;
 import org.firstinspires.ftc.teamcode.util.TelemetryGroup;
@@ -33,15 +33,20 @@ public class ShooterTurretTest extends OpMode {
 
     private Turret turret;
     private Shooter shooter;
+    private Intake intake;
+
     private Follower follower;
 
     private final Pose startPose = new Pose(72, 72, Math.toRadians(90));
     public Pose goalPose;
 
     public static double targetVelocity = 0;
-    public static double hoodPos = 0.7;
+    public static double hoodPos = 0.0;
 
     public static boolean autoShooter = false;
+
+    public double intakePower = 0.0;
+    public double transferPower = 0.0;
 
     private List<LynxModule> allHubs;
 
@@ -54,6 +59,7 @@ public class ShooterTurretTest extends OpMode {
 
         turret = new Turret(hardwareMap);
         shooter = new Shooter(hardwareMap);
+        intake = new Intake(hardwareMap, telemetryM);
 
         follower = createFollower(hardwareMap);
         follower.setStartingPose(startPose);
@@ -62,7 +68,7 @@ public class ShooterTurretTest extends OpMode {
         chosenAlliance = "RED";
         goalPose = chosenAlliance.equals("RED") ? redGoalPose : blueGoalPose;
 
-        shooter.hood.set(hoodPos);
+//        shooter.hood.set(hoodPos);
 
         targetVelocity = 0;
         autoShooter = false;
@@ -96,16 +102,23 @@ public class ShooterTurretTest extends OpMode {
                 true
         );
 
+        if (gamepad1.a) {
+            intakePower = 1.0;
+        }
+        if (gamepad1.b) {
+            intakePower = 0;
+        }
+
         if (gamepad1.rightStickButtonWasReleased()) {
             autoShooter = !autoShooter;
         }
 
         if (gamepad1.dpadUpWasReleased()) {
-            targetVelocity = Range.clip(targetVelocity + 20, 0, maxEPT);
+            targetVelocity = targetVelocity + 20;
         }
 
         if (gamepad1.dpadDownWasReleased()) {
-            targetVelocity = Range.clip(targetVelocity - 20, 0, maxEPT);
+            targetVelocity = targetVelocity - 20;
         }
 
         if (gamepad1.dpadRightWasReleased()) {
@@ -128,7 +141,7 @@ public class ShooterTurretTest extends OpMode {
             double calculatedTargetVelocity = shooter.getTicksFromBallSpeed(coefficients[0]);
             double calculatedHoodAngle = coefficients[1];
 
-            targetVelocity = Range.clip(calculatedTargetVelocity, 0, maxEPT);
+            targetVelocity = calculatedTargetVelocity;
 
             if (Math.abs(targetVelocity - actualVelocityRight) > 30) {
                 calculatedHoodAngle = shooter.getCompensatedHoodAngle(
@@ -157,6 +170,9 @@ public class ShooterTurretTest extends OpMode {
             shooter.shooterLeft.setPower(0);
         }
 
+        intake.powerTransfer(transferPower);
+        intake.powerIntake(intakePower);
+
         turret.periodic();
 
         double targetHeading = turret.calculateTargetHeading(robotPose, goalPose);
@@ -169,6 +185,7 @@ public class ShooterTurretTest extends OpMode {
         telemetryGroup.addData("Right Velocity", actualVelocityRight);
         telemetryGroup.addData("Left Velocity", actualVelocityLeft);
         telemetryGroup.addData("Hood Pos", hoodPos);
+        telemetryGroup.addData("Raw Hood Pos", shooter);
 
         telemetryGroup.addData("Turret Target Heading Rad", targetHeading);
         telemetryGroup.addData("Target Servo Position", turret.headingToTurretPos(targetHeading));

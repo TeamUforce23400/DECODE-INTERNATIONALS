@@ -102,6 +102,8 @@ public class ShooterPIDTuning extends OpMode {
                 true
         );
 
+
+
         if (gamepad1.rightStickButtonWasReleased()) {
             autoShooter = !autoShooter;
         }
@@ -129,6 +131,9 @@ public class ShooterPIDTuning extends OpMode {
         shooter.shooterLeft.setPower(shooter.controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
 
 
+
+        telemetryGroup.addData("Raw Hood Pos", shooter.hood.getRawPosition());
+
         telemetryGroup.addData("Robot Pose", robotPose);
         telemetryGroup.addData("Shot Distance M", shotDistanceMeters);
 
@@ -136,6 +141,7 @@ public class ShooterPIDTuning extends OpMode {
         telemetryGroup.addData("I", I);
         telemetryGroup.addData("kV", kV);
         telemetryGroup.addData("kS", kS);
+
 
         telemetryGroup.addData("Auto Shooter", autoShooter);
         telemetryGroup.addData("Target Velocity", targetVelocity);
