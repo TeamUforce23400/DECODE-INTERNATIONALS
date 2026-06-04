@@ -30,7 +30,7 @@ public class Turret extends SubsystemBase {
     public final double minPosServos = 0.0;
     public final double maxPosServos = 1.0 ;
 
-    public static double maxStepPerLoop = 0.015;
+    public static double maxStepPerLoop = 0.03;
 
     public static double wrapLow = 0.05;
     public static double wrapHigh = 0.95;

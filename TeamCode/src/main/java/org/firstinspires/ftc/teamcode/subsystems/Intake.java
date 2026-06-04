@@ -22,19 +22,19 @@ public class Intake extends SubsystemBase {
     public final DcMotorEx intake;
     public final DcMotorEx transfer;
     private final ServoEx stopperRight;
-    private final ServoEx stopperLeft;
+//    private final ServoEx stopperLeft;
     private final ServoExGroup stopper;
 
-    public final double openPos = 0; // TODO: This will be your stopper open position.
-    public final double closePos = 1; // TODO: This will be your stopper close position.
+    public final double openPos = 0.1; // TODO: This will be your stopper open position.
+    public final double closePos = 0.4; // TODO: This will be your stopper close position.
 
     public Intake(HardwareMap hardwareMap, TelemetryManager telemetryManager) {
         intake = hardwareMap.get(DcMotorEx.class, "inr");
         transfer = hardwareMap.get(DcMotorEx.class, "inl");
 
-        stopperRight = new ServoEx(hardwareMap, "servoRight");
-        stopperLeft = new ServoEx(hardwareMap, "servoLeft");
-        stopper = new ServoExGroup(stopperLeft, stopperRight);
+        stopperRight = new ServoEx(hardwareMap, "sr");
+//        stopperLeft = new ServoEx(hardwareMap, "sl");
+        stopper = new ServoExGroup(stopperRight);
 
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

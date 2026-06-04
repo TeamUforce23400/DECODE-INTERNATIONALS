@@ -99,7 +99,7 @@ public class IntakeTesting extends OpMode {
         telemetryGroup.addData("Target Stopper Position:", stopperPosition);
         telemetryGroup.addData("Actual Intake Power:", intake.getIntakePower());
         telemetryGroup.addData("Actual Transfer Power:", intake.getTransferPower());
-        telemetryGroup.addData("Actual Stopper Position:", intake.getStopperPosition());
+//        telemetryGroup.addData("Actual Stopper Position:", intake.getStopperPosition());
         telemetryGroup.update();
     }
 

@@ -86,11 +86,11 @@ public class TeleopDebugMotors extends LinearOpMode {
                 servoPos = 1.0;
             }
 
-            servoPos = Math.max(0.0, Math.min(1.0, servoPos));
-            servoRightFront.setPosition(servoPos);
-            servoLeftFront.setPosition(servoPos);
-            servoRightBack.setPosition(servoPos);
-            servoLeftBack.setPosition(servoPos);
+//            servoPos = Math.max(0.0, Math.min(1.0, servoPos));
+//            servoRightFront.setPosition(servoPos);
+//            servoLeftFront.setPosition(servoPos);
+//            servoRightBack.setPosition(servoPos);
+//            servoLeftBack.setPosition(servoPos);
 
 
             // Motor direction toggle
