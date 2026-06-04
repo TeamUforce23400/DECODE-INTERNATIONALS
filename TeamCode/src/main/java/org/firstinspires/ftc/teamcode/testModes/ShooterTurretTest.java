@@ -159,16 +159,11 @@ public class ShooterTurretTest extends OpMode {
             shooter.hood.set(hoodPos);
         }
 
-        if (targetVelocity <= 0) {
-            shooter.shooterRight.setPower(0);
-            shooter.shooterLeft.setPower(0);
-        } else if (actualVelocityRight < targetVelocity - 10) {
-            shooter.shooterRight.setPower(1);
-            shooter.shooterLeft.setPower(1);
-        } else {
-            shooter.shooterRight.setPower(0);
-            shooter.shooterLeft.setPower(0);
-        }
+        double errorRight = targetVelocity - shooter.shooterRight.getVelocity();
+        double errorLeft = targetVelocity - shooter.shooterLeft.getVelocity();
+        shooter.shooterRight.setPower(shooter.controllerRight.calculate(errorRight, targetVelocity, 0.0));
+        shooter.shooterLeft.setPower(shooter.controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
+
 
         intake.powerTransfer(transferPower);
         intake.powerIntake(intakePower);
