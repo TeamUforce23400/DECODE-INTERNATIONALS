@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.globals.Localization;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Shooter;
@@ -102,12 +103,53 @@ public class ShooterTurretTest extends OpMode {
                 true
         );
 
-        if (gamepad1.a) {
-            intakePower = 1.0;
+//        if (gamepad1.a) {
+//            intakePower = 1.0;
+//        }
+//        if (gamepad1.b) {
+//            intakePower = 0;
+//            transferPower = 0;
+//        }
+//
+//        if (gamepad1.y){
+//            transferPower = 1.0;
+//        }
+
+        if (gamepad1.right_bumper) {
+            intake.powerIntake(1.0);
+
+            if (!intake.firstIn) {
+                intake.powerTransfer(1.0);
+            } else if(intake.firstIn) {
+                intake.powerTransfer(0.0);
+            }
+
+            intake.autoIntake();
         }
-        if (gamepad1.b) {
-            intakePower = 0;
+
+        if (gamepad1.rightBumperWasReleased()) {
+            intake.powerIntake(0.0);
+            intake.powerTransfer(0.0);
+            intake.openStopper(false);
+
+            intake.firstIn = false;
+            intake.all3 = false;
         }
+
+        if (intake.all3) {
+            gamepad1.rumble(200);
+        }
+
+        if (gamepad1.left_bumper){
+            intake.openStopper(true);
+            intake.powerFullIntake(1.0);
+        }
+
+        if (gamepad1.leftBumperWasReleased()){
+            intake.openStopper(false);
+            intake.powerFullIntake(0.0);
+        }
+
 
         if (gamepad1.rightStickButtonWasReleased()) {
             autoShooter = !autoShooter;
@@ -120,6 +162,8 @@ public class ShooterTurretTest extends OpMode {
         if (gamepad1.dpadDownWasReleased()) {
             targetVelocity = targetVelocity - 20;
         }
+
+
 
         if (gamepad1.dpadRightWasReleased()) {
             hoodPos = Range.clip(hoodPos - 0.025, shooter.minimumHoodPos, shooter.maximumHoodPos);
@@ -134,6 +178,15 @@ public class ShooterTurretTest extends OpMode {
         double shotDistanceMeters = robotPose.distanceFrom(goalPose) * 0.0254;
         double actualVelocityRight = shooter.shooterRight.getVelocity();
         double actualVelocityLeft = shooter.shooterLeft.getVelocity();
+
+        if (shotDistanceMeters < 2.8) {
+            Shooter.landAngleDegrees = -20;
+            Shooter.powerConstant = 2.36;
+        }
+        else {
+            Shooter.landAngleDegrees = -15;
+            Shooter.powerConstant = 2.57;
+        }
 
         if (autoShooter) {
             double[] coefficients = shooter.getCoefficientsFromDistance(shotDistanceMeters);
@@ -165,9 +218,13 @@ public class ShooterTurretTest extends OpMode {
         shooter.shooterLeft.setPower(shooter.controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
 
 
-        intake.powerTransfer(transferPower);
-        intake.powerIntake(intakePower);
+//        intake.powerTransfer(transferPower);
+//        intake.powerIntake(intakePower);
 
+//        boolean d1 = intake.isBallDetected01();
+//        boolean d2 = intake.isBallDetected02();
+
+        intake.periodic();
         turret.periodic();
 
         double targetHeading = turret.calculateTargetHeading(robotPose, goalPose);
@@ -185,6 +242,12 @@ public class ShooterTurretTest extends OpMode {
         telemetryGroup.addData("Turret Target Heading Rad", targetHeading);
         telemetryGroup.addData("Target Servo Position", turret.headingToTurretPos(targetHeading));
         telemetryGroup.addData("Current Servo Position", turret.getServoPosition());
+
+        telemetryGroup.addData("Transfer Amps", intake.transfer.getCurrent(CurrentUnit.AMPS));
+        telemetryGroup.addData("Intake Amps", intake.intake.getCurrent(CurrentUnit.AMPS));
+
+        telemetryGroup.addData("S1", intake.isBallDetected01());
+        telemetryGroup.addData("S2", intake.isBallDetected02());
 
         telemetryGroup.update();
     }
