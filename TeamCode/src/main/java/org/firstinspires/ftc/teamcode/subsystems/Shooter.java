@@ -118,6 +118,24 @@ public class Shooter extends SubsystemBase {
         return (ticksPerSecond * Math.PI * 0.036 * 2) / (encoderResolution * powerConstant * motorToFlywheelRatio);
     }
 
+    public boolean atSpeed() {
+        Pose robotPos = Localization.getPose();
+        Pose goalPose = chosenAlliance.equals("RED") ? redGoalPose : blueGoalPose;
+
+        double shotDistance = robotPos.distanceFrom(goalPose) * 0.0254;
+
+        double[] coefficients = getCoefficientsFromDistance(shotDistance);
+        double targetVelocity = getTicksFromBallSpeed(coefficients[0]);
+
+        double actualRightVelocity = shooterRight.getVelocity();
+        double actualLeftVelocity = shooterLeft.getVelocity();
+
+        return Math.abs(actualRightVelocity - targetVelocity) < 20
+                && Math.abs(actualLeftVelocity - targetVelocity) < 20;
+    }
+
+
+
 
     public double[] getCoefficientsFromDistance(double distance) {
         // IMPORTANT: All units are meters, but pedroPathing methods return inches, so appropriate conversion HAS ALREADY been done.
