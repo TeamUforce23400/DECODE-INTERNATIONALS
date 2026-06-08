@@ -12,6 +12,8 @@ public class RobotConstants {
     public static Pose redDistancePose = new Pose(138, 138, Math.toRadians(90));
 
     public static String chosenAlliance = "RED";
+    public static Pose savedPose = null;
+
 
 
 

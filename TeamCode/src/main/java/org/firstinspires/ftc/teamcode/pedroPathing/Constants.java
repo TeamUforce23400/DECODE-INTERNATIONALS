@@ -16,9 +16,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Constants {
     public static FollowerConstants followerConstants = new FollowerConstants()
-            .mass(10.2)
+            .mass(12.35)
             .headingPIDFCoefficients(new PIDFCoefficients(1.1,0.0, 0.03, 0.01))
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.09, 0.00135, 0.080785))
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.09, 0.10225, 0.001135))
             .centripetalScaling(0.0)
             ;
 
@@ -34,8 +34,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(79.635)
-            .yVelocity(60.09);
+            .xVelocity(79.004)
+            .yVelocity(59.415);
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(5.1)
@@ -44,7 +44,7 @@ public class Constants {
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
             .forwardEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD)
-            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+            .strafeEncoderDirection(GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     public static Follower createFollower(HardwareMap hardwareMap) {
         return new FollowerBuilder(followerConstants, hardwareMap)
