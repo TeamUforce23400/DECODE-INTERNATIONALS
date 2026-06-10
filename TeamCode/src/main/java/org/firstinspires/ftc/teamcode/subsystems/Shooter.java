@@ -28,6 +28,9 @@ public class Shooter extends SubsystemBase {
     public final DcMotorEx shooterLeft;
     public final ServoEx hood;
 
+    public static boolean isFarside = true;
+    public static double farVelocity = 1200;
+
     public static double landAngleDegrees = -20;
 
     public double landAngle = Math.toRadians(landAngleDegrees);
@@ -43,7 +46,7 @@ public class Shooter extends SubsystemBase {
     // You can either do this manually using a protractor and measuring the exact moment the ball is launched (should be approx. center of the ball).
     // OR you can check the CAD and do this (with the CAD measurement method, you need to make sure that the hood is set to the same position as the servo position in real life).
 
-    public double minimumHoodPos = 0.0; // TODO: This will be your minimum hood servo position, at minimum hood angle degree (for example, servo position 0 at launch angle 80 degrees - lower hood angle, higher shots, higher trajectory).
+    public double minimumHoodPos = 0.07665; // TODO: This will be your minimum hood servo position, at minimum hood angle degree (for example, servo position 0 at launch angle 80 degrees - lower hood angle, higher shots, higher trajectory).
     public double maximumHoodPos = 0.875; // TODO: This will be your maximum hood servo position, at maximum hood angle degree (for example, servo position 1 at launch angle 20 degrees - higher hood angle, lower shots, flatter trajectory).
     // Change the values inside the brackets in degrees; it will be converted to radians.
     public double minHoodPosRad = Math.toRadians(57.452); // TODO: This should be the launch angle of the ball when the hood servo is at minimum hood position (higher shots, higher trajectory).
@@ -51,10 +54,10 @@ public class Shooter extends SubsystemBase {
 
     public PIDFController controllerRight;
     public PIDFController controllerLeft;
-    public final double P = 0.029;
+    public final double P = 0.03;
     public final double I = 0.2;
-    public final double kV = 0.00045;
-    public final double kS = 0.088;
+    public final double kV = 0.0004;
+    public final double kS = 0.065;
     public Shooter(HardwareMap hardwareMap) {
         // TODO: The directions are relative to when the shooter is facing away from you - towards the front of the field/goal.
         shooterRight = hardwareMap.get(DcMotorEx.class, "st");
@@ -96,10 +99,33 @@ public class Shooter extends SubsystemBase {
 
         hood.set(hoodPos);
 
+        targetVelocity = manualFar(targetVelocity);
+
         double errorRight = targetVelocity - shooterRight.getVelocity();
         double errorLeft = targetVelocity - shooterLeft.getVelocity();
         shooterRight.setPower(controllerRight.calculate(errorRight, targetVelocity, 0.0));
         shooterLeft.setPower(controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
+    }
+
+    public double manualFar( double targetVel){
+        isFarside=!isFarside;
+        if (isFarside){
+            targetVel = MathUtils.clamp(
+                    targetVel,
+                    farVelocity,
+                    farVelocity+400
+            );
+            return targetVel;
+        }
+        else{
+            targetVel = MathUtils.clamp(
+                    targetVel,
+                    0,
+                    targetVel+500
+            );
+            return targetVel;
+        }
+
     }
 
     public double getHoodPosFromAngle(double angle) {
@@ -128,11 +154,11 @@ public class Shooter extends SubsystemBase {
         double targetVelocity = getTicksFromBallSpeed(coefficients[0]);
 
         double actualRightVelocity = shooterRight.getVelocity();
-        double actualLeftVelocity = shooterLeft.getVelocity();
 
-        return Math.abs(actualRightVelocity - targetVelocity) < 20
-                && Math.abs(actualLeftVelocity - targetVelocity) < 20;
+        return Math.abs(actualRightVelocity - targetVelocity) < 20;
+
     }
+
 
 
 

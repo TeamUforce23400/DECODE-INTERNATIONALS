@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testModes;
+package org.firstinspires.ftc.teamcode.main;
 
 import static org.firstinspires.ftc.teamcode.globals.Localization.getPose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.blueGoalPose;
@@ -27,7 +27,7 @@ import java.util.List;
 
 @Configurable
 @TeleOp(name = "Turret + Shooter Testing", group = "TeleOp")
-public class ShooterTurretTest extends OpMode {
+public class BlueTeleop extends OpMode {
 
     private TelemetryManager telemetryM;
     private TelemetryGroup telemetryGroup;
@@ -44,7 +44,7 @@ public class ShooterTurretTest extends OpMode {
     public static double targetVelocity = 0;
     public static double hoodPos = 0.0;
 
-    public static boolean autoShooter = false;
+    public static boolean autoShooter = true;
 
     public double intakePower = 0.0;
     public double transferPower = 0.0;
@@ -66,8 +66,8 @@ public class ShooterTurretTest extends OpMode {
         follower.setStartingPose(startPose);
         Localization.init(follower);
 
-        chosenAlliance = "RED";
-        goalPose = chosenAlliance.equals("RED") ? redGoalPose : blueGoalPose;
+        chosenAlliance = "BLUE";
+        goalPose = chosenAlliance.equals("BLUE") ? redGoalPose : blueGoalPose;
 
 //        shooter.hood.set(hoodPos);
 
@@ -102,18 +102,6 @@ public class ShooterTurretTest extends OpMode {
                 -gamepad1.right_stick_x,
                 true
         );
-
-//        if (gamepad1.a) {
-//            intakePower = 1.0;
-//        }
-//        if (gamepad1.b) {
-//            intakePower = 0;
-//            transferPower = 0;
-//        }
-//
-//        if (gamepad1.y){
-//            transferPower = 1.0;
-//        }
 
         if (gamepad1.right_bumper) {
             intake.powerIntake(1.0);
@@ -151,29 +139,12 @@ public class ShooterTurretTest extends OpMode {
         }
 
 
-        if (gamepad1.rightStickButtonWasReleased()) {
-            autoShooter = !autoShooter;
-        }
-
-        if (gamepad1.dpadUpWasReleased()) {
-            targetVelocity = targetVelocity + 20;
-        }
-
-        if (gamepad1.dpadDownWasReleased()) {
-            targetVelocity = targetVelocity - 20;
-        }
+//        if (gamepad1.rightStickButtonWasReleased()) {
+//            autoShooter = !autoShooter;
+//        }
 
 
 
-        if (gamepad1.dpadRightWasReleased()) {
-            hoodPos = Range.clip(hoodPos - 0.025, shooter.minimumHoodPos, shooter.maximumHoodPos);
-            shooter.hood.set(hoodPos);
-        }
-
-        if (gamepad1.dpadLeftWasReleased()) {
-            hoodPos = Range.clip(hoodPos + 0.025, shooter.minimumHoodPos, shooter.maximumHoodPos);
-            shooter.hood.set(hoodPos);
-        }
 
         double shotDistanceMeters = robotPose.distanceFrom(goalPose) * 0.0254;
         double actualVelocityRight = shooter.shooterRight.getVelocity();
@@ -229,27 +200,27 @@ public class ShooterTurretTest extends OpMode {
 
         double targetHeading = turret.calculateTargetHeading(robotPose, goalPose);
 
-        telemetryGroup.addData("Robot Pose", robotPose);
-        telemetryGroup.addData("Shot Distance M", shotDistanceMeters);
-
-        telemetryGroup.addData("Auto Shooter", autoShooter);
-        telemetryGroup.addData("Target Velocity", targetVelocity);
-        telemetryGroup.addData("Right Velocity", actualVelocityRight);
-        telemetryGroup.addData("Left Velocity", actualVelocityLeft);
-        telemetryGroup.addData("Hood Pos", hoodPos);
-        telemetryGroup.addData("Raw Hood Pos", shooter);
-
-        telemetryGroup.addData("Turret Target Heading Rad", targetHeading);
-        telemetryGroup.addData("Target Servo Position", turret.headingToTurretPos(targetHeading));
-        telemetryGroup.addData("Current Servo Position", turret.getServoPosition());
-
-        telemetryGroup.addData("Transfer Amps", intake.transfer.getCurrent(CurrentUnit.AMPS));
-        telemetryGroup.addData("Intake Amps", intake.intake.getCurrent(CurrentUnit.AMPS));
-
-        telemetryGroup.addData("S1", intake.isBallDetected01());
-        telemetryGroup.addData("S2", intake.isBallDetected02());
-
-        telemetryGroup.update();
+//        telemetryGroup.addData("Robot Pose", robotPose);
+//        telemetryGroup.addData("Shot Distance M", shotDistanceMeters);
+//
+//        telemetryGroup.addData("Auto Shooter", autoShooter);
+//        telemetryGroup.addData("Target Velocity", targetVelocity);
+//        telemetryGroup.addData("Right Velocity", actualVelocityRight);
+//        telemetryGroup.addData("Left Velocity", actualVelocityLeft);
+//        telemetryGroup.addData("Hood Pos", hoodPos);
+//        telemetryGroup.addData("Raw Hood Pos", shooter);
+//
+//        telemetryGroup.addData("Turret Target Heading Rad", targetHeading);
+//        telemetryGroup.addData("Target Servo Position", turret.headingToTurretPos(targetHeading));
+//        telemetryGroup.addData("Current Servo Position", turret.getServoPosition());
+//
+//        telemetryGroup.addData("Transfer Amps", intake.transfer.getCurrent(CurrentUnit.AMPS));
+//        telemetryGroup.addData("Intake Amps", intake.intake.getCurrent(CurrentUnit.AMPS));
+//
+//        telemetryGroup.addData("S1", intake.isBallDetected01());
+//        telemetryGroup.addData("S2", intake.isBallDetected02());
+//
+//        telemetryGroup.update();
     }
 
     @Override

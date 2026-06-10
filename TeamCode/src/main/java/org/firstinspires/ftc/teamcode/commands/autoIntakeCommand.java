@@ -24,7 +24,7 @@ public class autoIntakeCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return (intakeSubsystem.all3);
+        return true;
 
     }
 }

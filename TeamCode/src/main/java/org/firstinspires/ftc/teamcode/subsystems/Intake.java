@@ -26,8 +26,8 @@ public class Intake extends SubsystemBase {
 //    private final ServoEx stopperLeft;
     private final ServoExGroup stopper;
 
-    public double openPos = 0.1; // TODO: This will be your stopper open position.
-    public static double closePos = 0.3; // TODO: This will be your stopper close position.
+    public double openPos = 0.0; // TODO: This will be your stopper open position.
+    public static double closePos = 0.33; // TODO: This will be your stopper close position.
 
     private final AnalogInput s1;
     private final AnalogInput s2;
@@ -148,7 +148,7 @@ public class Intake extends SubsystemBase {
 
 
     public double getStopperPosition() {
-        return stopper.getRawPosition();
+        return stopper.get();
     }
 
 }

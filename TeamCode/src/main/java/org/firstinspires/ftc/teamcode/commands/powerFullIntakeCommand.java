@@ -24,7 +24,7 @@ public class powerFullIntakeCommand extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return (intakeSubsystem.isIntakeOn);
+        return (intakeSubsystem.getIntakePower() > 0.8);
 
     }
 }
