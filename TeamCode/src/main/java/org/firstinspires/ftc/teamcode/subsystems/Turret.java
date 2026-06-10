@@ -31,9 +31,9 @@ public class Turret extends SubsystemBase {
     public final double maxPosServos = 1.0 ;
 
     public static double maxStepPerLoop = 0.03;
-
     public static double wrapLow = 0.05;
-    public static double wrapHigh = 0.95;
+    // A 360-degree heading is servo position 0.90 because the configured span is 400 degrees.
+    public static double wrapHigh = 0.85;
     public static double safeMiddle = 0.5;
 
     private double currentServoPosition = 0.5;
@@ -79,25 +79,7 @@ public class Turret extends SubsystemBase {
         double targetServoPosition = headingToTurretPos(targetHeading);
 
         targetServoPosition = clamp(targetServoPosition);
-
-        updateSafeTarget(targetServoPosition);
-
-        double activeTarget = routingThroughMiddle
-                ? safeMiddle
-                : finalTargetPosition;
-
-        currentServoPosition = moveToward(
-                currentServoPosition,
-                activeTarget,
-                maxStepPerLoop
-        );
-
-        if (routingThroughMiddle
-                && Math.abs(currentServoPosition - safeMiddle) < 0.02) {
-            routingThroughMiddle = false;
-        }
-
-        turretServos.set(currentServoPosition);
+        moveToPosition(targetServoPosition);
     }
 
     public double calculateTargetHeading(Pose robotPos, Pose goalPose) {
@@ -108,16 +90,9 @@ public class Turret extends SubsystemBase {
 
         double robotHeading = robotPos.getHeading();
 
-        double targetHeading =
-                absoluteTargetHeading - robotHeading + Math.PI;
-
-        if (targetHeading >= 2 * Math.PI) {
-            targetHeading -= 2 * Math.PI;
-        } else if (targetHeading < 0) {
-            targetHeading += 2 * Math.PI;
-        }
-
-        return targetHeading;
+        return normalizeRadians(
+                absoluteTargetHeading - robotHeading + Math.PI
+        );
     }
 
     public double headingToTurretPos(double heading) {
@@ -127,21 +102,38 @@ public class Turret extends SubsystemBase {
                 + minPosServos;
     }
 
-    private void updateSafeTarget(double newTarget) {
-        boolean currentNearMin = currentServoPosition < wrapLow;
-        boolean currentNearMax = currentServoPosition > wrapHigh;
+    private double normalizeRadians(double angle) {
+        double fullRotation = 2 * Math.PI;
+        double normalized = angle % fullRotation;
+        return normalized < 0 ? normalized + fullRotation : normalized;
+    }
 
-        boolean targetNearMin = newTarget < wrapLow;
-        boolean targetNearMax = newTarget > wrapHigh;
+    private double clamp(double position) {
+        return Math.max(minPosServos, Math.min(maxPosServos, position));
+    }
 
-        boolean unsafeCross =
-                (currentNearMin && targetNearMax)
-                        || (currentNearMax && targetNearMin);
+    private void moveToPosition(double targetPosition) {
+        finalTargetPosition = targetPosition;
 
-        finalTargetPosition = newTarget;
-
-        if (unsafeCross) {
+        // The AXON's 1 -> 0 wrap skips turret travel, so latch a route through the midpoint.
+        if (!routingThroughMiddle
+                && currentServoPosition > wrapHigh
+                && targetPosition < wrapLow) {
             routingThroughMiddle = true;
+        }
+
+        double activeTarget = routingThroughMiddle
+                ? safeMiddle
+                : finalTargetPosition;
+
+        commandPosition(moveToward(
+                currentServoPosition,
+                activeTarget,
+                maxStepPerLoop
+        ));
+
+        if (routingThroughMiddle && currentServoPosition == safeMiddle) {
+            routingThroughMiddle = false;
         }
     }
 
@@ -155,8 +147,9 @@ public class Turret extends SubsystemBase {
         return current + Math.signum(error) * maxStep;
     }
 
-    private double clamp(double position) {
-        return Math.max(minPosServos, Math.min(maxPosServos, position));
+    private void commandPosition(double position) {
+        currentServoPosition = position;
+        turretServos.set(position);
     }
 
     public double getServoPosition() {
@@ -164,25 +157,6 @@ public class Turret extends SubsystemBase {
     }
 
     public void setPosition(double position) {
-        position = clamp(position);
-
-        updateSafeTarget(position);
-
-        double activeTarget = routingThroughMiddle
-                ? safeMiddle
-                : finalTargetPosition;
-
-        currentServoPosition = moveToward(
-                currentServoPosition,
-                activeTarget,
-                maxStepPerLoop
-        );
-
-        if (routingThroughMiddle
-                && Math.abs(currentServoPosition - safeMiddle) < 0.02) {
-            routingThroughMiddle = false;
-        }
-
-        turretServos.set(currentServoPosition);
+        moveToPosition(clamp(position));
     }
 }
