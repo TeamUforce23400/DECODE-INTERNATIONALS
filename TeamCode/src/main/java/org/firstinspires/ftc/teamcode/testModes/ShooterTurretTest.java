@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.globals.Localization.getPose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.blueGoalPose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.chosenAlliance;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.redGoalPose;
+//import static org.firstinspires.ftc.teamcode.globals.RobotConstants.resetPos;
 import static org.firstinspires.ftc.teamcode.pedroPathing.Constants.createFollower;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -45,6 +46,10 @@ public class ShooterTurretTest extends OpMode {
     public static double hoodPos = 0.0;
 
     public static boolean autoShooter = false;
+
+    public static final Pose resetPosNear = new Pose(126.294, 80.668, Math.toRadians(0));
+    public static final Pose resetPosFar = new Pose(10.74, 10.1, Math.toRadians(180));
+
 
     public double intakePower = 0.0;
     public double transferPower = 0.0;
@@ -142,7 +147,7 @@ public class ShooterTurretTest extends OpMode {
 
         if (gamepad1.left_bumper){
             intake.openStopper(true);
-            intake.powerFullIntake(1.0);
+            intake.powerFullIntake(intake.intakeSpeed);
         }
 
         if (gamepad1.leftBumperWasReleased()){
@@ -179,14 +184,26 @@ public class ShooterTurretTest extends OpMode {
         double actualVelocityRight = shooter.shooterRight.getVelocity();
         double actualVelocityLeft = shooter.shooterLeft.getVelocity();
 
-        if (shotDistanceMeters < 2.8) {
+        if (shotDistanceMeters < 2.6) {
+            intake.intakeSpeed = 1.0;
             Shooter.landAngleDegrees = -20;
-            Shooter.powerConstant = 2.31;
+            Shooter.powerConstant = 2.23;
+            if (gamepad1.right_trigger > 0.1) {
+//            follower.holdPoint(follower.getPose());
+                follower.setPose(resetPosNear);
+            }
         }
         else {
-            Shooter.landAngleDegrees = -15;
-            Shooter.powerConstant = 2.54;
+            intake.intakeSpeed = 0.8;
+            Shooter.landAngleDegrees = -21;
+            Shooter.powerConstant = 2.49;
+            if (gamepad1.right_trigger > 0.1) {
+//            follower.holdPoint(follower.getPose());
+                follower.setPose(resetPosFar);
+            }
         }
+
+
 
         if (autoShooter) {
             double[] coefficients = shooter.getCoefficientsFromDistance(shotDistanceMeters);
@@ -212,10 +229,18 @@ public class ShooterTurretTest extends OpMode {
             shooter.hood.set(hoodPos);
         }
 
-        double errorRight = targetVelocity - shooter.shooterRight.getVelocity();
-        double errorLeft = targetVelocity - shooter.shooterLeft.getVelocity();
-        shooter.shooterRight.setPower(shooter.controllerRight.calculate(errorRight, targetVelocity, 0.0));
-        shooter.shooterLeft.setPower(shooter.controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
+//        double errorRight = targetVelocity - shooter.shooterRight.getVelocity();
+//        double errorLeft = targetVelocity - shooter.shooterLeft.getVelocity();
+//        shooter.shooterRight.setPower(shooter.controllerRight.calculate(errorRight, targetVelocity, 0.0));
+//        shooter.shooterLeft.setPower(shooter.controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
+        if (targetVelocity - actualVelocityRight > 10) {
+            shooter.shooterRight.setPower(1);
+            shooter.shooterLeft.setPower(1);
+        }
+        else {
+            shooter.shooterRight.setPower(0);
+            shooter.shooterLeft.setPower(0);
+        }
 
 
 //        intake.powerTransfer(transferPower);
@@ -233,6 +258,8 @@ public class ShooterTurretTest extends OpMode {
         telemetryGroup.addData("Shot Distance M", shotDistanceMeters);
 
         telemetryGroup.addData("Auto Shooter", autoShooter);
+        telemetryGroup.addData("Current Pose", follower.getPose());
+
         telemetryGroup.addData("Target Velocity", targetVelocity);
         telemetryGroup.addData("Right Velocity", actualVelocityRight);
         telemetryGroup.addData("Left Velocity", actualVelocityLeft);

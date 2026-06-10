@@ -19,7 +19,7 @@ public class powerFullIntakeCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        intakeSubsystem.powerFullIntake(1.0);
+        intakeSubsystem.powerFullIntake(intakeSubsystem.intakeSpeed);
     }
 
     @Override

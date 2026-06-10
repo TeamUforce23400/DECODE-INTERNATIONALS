@@ -33,6 +33,7 @@ public class Shooter extends SubsystemBase {
 
     public static double landAngleDegrees = -20;
 
+
     public double landAngle = Math.toRadians(landAngleDegrees);
     public final double encoderResolution = 28.0; // TODO: This is the shooter motors' ticks resolution (on the goBILDA site). For 6000 rpm, it is 28.0;
     public final double motorToFlywheelRatio = 1.0; // TODO: This is the gear ratio from the shooter motors to the flywheel. flywheelTeeth/motorTeeth
@@ -58,6 +59,7 @@ public class Shooter extends SubsystemBase {
     public final double I = 0.2;
     public final double kV = 0.0004;
     public final double kS = 0.065;
+
     public Shooter(HardwareMap hardwareMap) {
         // TODO: The directions are relative to when the shooter is facing away from you - towards the front of the field/goal.
         shooterRight = hardwareMap.get(DcMotorEx.class, "st");
@@ -67,8 +69,8 @@ public class Shooter extends SubsystemBase {
         shooterRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         shooterLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        controllerRight = new PIDFController(P,I,0.0, 0);
-        controllerLeft = new PIDFController(P,I,0.0, 0);
+        controllerRight = new PIDFController(P, I, 0.0, 0);
+        controllerLeft = new PIDFController(P, I, 0.0, 0);
         controllerRight.setFeedforward(kV, 0.0, kS);
         controllerLeft.setFeedforward(kV, 0.0, kS);
         // TODO: Make sure both the motors tick together (both should have positive encoder ticks together). If not, then use .setDirection() method.
@@ -99,7 +101,7 @@ public class Shooter extends SubsystemBase {
 
         hood.set(hoodPos);
 
-        targetVelocity = manualFar(targetVelocity);
+//        targetVelocity = manualFar(targetVelocity);
 
         double errorRight = targetVelocity - shooterRight.getVelocity();
         double errorLeft = targetVelocity - shooterLeft.getVelocity();
@@ -107,26 +109,26 @@ public class Shooter extends SubsystemBase {
         shooterLeft.setPower(controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
     }
 
-    public double manualFar( double targetVel){
-        isFarside=!isFarside;
-        if (isFarside){
-            targetVel = MathUtils.clamp(
-                    targetVel,
-                    farVelocity,
-                    farVelocity+400
-            );
-            return targetVel;
-        }
-        else{
-            targetVel = MathUtils.clamp(
-                    targetVel,
-                    0,
-                    targetVel+500
-            );
-            return targetVel;
-        }
+//    public double manualFar( double targetVel){
+//        isFarside=!isFarside;
+//        if (isFarside){
+//            targetVel = MathUtils.clamp(
+//                    targetVel,
+//                    farVelocity,
+//                    farVelocity+400
+//            );
+//            return targetVel;
+//        }
+//        else{
+//            targetVel = MathUtils.clamp(
+//                    targetVel,
+//                    0,
+//                    targetVel+500
+//            );
+//            return targetVel;
+//        }
 
-    }
+//}
 
     public double getHoodPosFromAngle(double angle) {
         return ((maximumHoodPos - minimumHoodPos)*(angle - minHoodPosRad)/(maxHoodPosRad-minHoodPosRad)) + minimumHoodPos;

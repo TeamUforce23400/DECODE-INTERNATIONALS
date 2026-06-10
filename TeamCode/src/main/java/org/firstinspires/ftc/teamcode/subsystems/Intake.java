@@ -25,6 +25,7 @@ public class Intake extends SubsystemBase {
     private final TelemetryManager telemetry;
 //    private final ServoEx stopperLeft;
     private final ServoExGroup stopper;
+    public static double intakeSpeed = 1.0;
 
     public double openPos = 0.0; // TODO: This will be your stopper open position.
     public static double closePos = 0.33; // TODO: This will be your stopper close position.

@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.util.TelemetryGroup;
 import java.util.List;
 
 @Configurable
-@TeleOp(name = "Turret + Shooter Testing", group = "TeleOp")
+@TeleOp(name = "Blue Teleop", group = "TeleOp")
 public class BlueTeleop extends OpMode {
 
     private TelemetryManager telemetryM;
