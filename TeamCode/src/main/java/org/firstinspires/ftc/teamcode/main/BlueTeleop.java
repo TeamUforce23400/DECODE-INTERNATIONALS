@@ -167,12 +167,12 @@ public class BlueTeleop extends OpMode {
 
             targetVelocity = calculatedTargetVelocity;
 
-            if (Math.abs(targetVelocity - actualVelocityRight) > 30) {
-                calculatedHoodAngle = shooter.getCompensatedHoodAngle(
-                        shotDistanceMeters,
-                        actualVelocityRight
-                );
-            }
+//            if (Math.abs(targetVelocity - actualVelocityRight) > 30) {
+//                calculatedHoodAngle = shooter.getCompensatedHoodAngle(
+//                        shotDistanceMeters,
+//                        actualVelocityRight
+//                );
+//            }
 
             hoodPos = Range.clip(
                     shooter.getHoodPosFromAngle(calculatedHoodAngle),

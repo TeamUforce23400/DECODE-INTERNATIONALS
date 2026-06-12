@@ -167,12 +167,12 @@ public class RedTeleop extends OpMode {
 
             targetVelocity = calculatedTargetVelocity;
 
-            if (Math.abs(targetVelocity - actualVelocityRight) > 30) {
-                calculatedHoodAngle = shooter.getCompensatedHoodAngle(
-                        shotDistanceMeters,
-                        actualVelocityRight
-                );
-            }
+//            if (Math.abs(targetVelocity - actualVelocityRight) > 30) {
+//                calculatedHoodAngle = shooter.getCompensatedHoodAngle(
+//                        shotDistanceMeters,
+//                        actualVelocityRight
+//                );7
+//            }
 
             hoodPos = Range.clip(
                     shooter.getHoodPosFromAngle(calculatedHoodAngle),

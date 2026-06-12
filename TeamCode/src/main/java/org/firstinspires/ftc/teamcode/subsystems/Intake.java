@@ -28,7 +28,7 @@ public class Intake extends SubsystemBase {
     public static double intakeSpeed = 1.0;
 
     public double openPos = 0.0; // TODO: This will be your stopper open position.
-    public static double closePos = 0.33; // TODO: This will be your stopper close position.
+    public static double closePos = 0.5; // TODO: This will be your stopper close position.
 
     private final AnalogInput s1;
     private final AnalogInput s2;

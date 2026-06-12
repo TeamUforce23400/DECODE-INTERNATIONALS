@@ -186,17 +186,17 @@ public class ShooterTurretTest extends OpMode {
 
         if (shotDistanceMeters < 2.6) {
             intake.intakeSpeed = 1.0;
-            Shooter.landAngleDegrees = -20;
-            Shooter.powerConstant = 2.23;
+            Shooter.landAngleDegrees = -10;
+            Shooter.powerConstant = 2;
             if (gamepad1.right_trigger > 0.1) {
 //            follower.holdPoint(follower.getPose());
                 follower.setPose(resetPosNear);
             }
         }
         else {
-            intake.intakeSpeed = 0.8;
-            Shooter.landAngleDegrees = -21;
-            Shooter.powerConstant = 2.49;
+            intake.intakeSpeed = 1.0;
+            Shooter.landAngleDegrees = -10;
+            Shooter.powerConstant = 2.15;
             if (gamepad1.right_trigger > 0.1) {
 //            follower.holdPoint(follower.getPose());
                 follower.setPose(resetPosFar);
@@ -213,7 +213,7 @@ public class ShooterTurretTest extends OpMode {
 
             targetVelocity = calculatedTargetVelocity;
 
-            if (Math.abs(targetVelocity - actualVelocityRight) > 30) {
+            if (Math.abs(targetVelocity - actualVelocityRight) > 50) {
                 calculatedHoodAngle = shooter.getCompensatedHoodAngle(
                         shotDistanceMeters,
                         actualVelocityRight

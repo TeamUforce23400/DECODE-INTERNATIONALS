@@ -31,14 +31,13 @@ public class Shooter extends SubsystemBase {
     public static boolean isFarside = true;
     public static double farVelocity = 1200;
 
-    public static double landAngleDegrees = -20;
+    public static double landAngleDegrees = -10;
 
 
-    public double landAngle = Math.toRadians(landAngleDegrees);
     public final double encoderResolution = 28.0; // TODO: This is the shooter motors' ticks resolution (on the goBILDA site). For 6000 rpm, it is 28.0;
     public final double motorToFlywheelRatio = 1.0; // TODO: This is the gear ratio from the shooter motors to the flywheel. flywheelTeeth/motorTeeth
     public final double verticalDifference = 0.5; // TODO: This should be your vertical distance from the point where the balls (middle of shooter) are launched to the height of the goal (top of white part of the April Tag).
-    public static double powerConstant = 2.37; // TODO: Tune this until the balls go in from most distances. Ideal range is 2-2.5. (A lower power constant means that the energy loss is less when shooting)
+    public static double powerConstant = 1.89; // TODO: Tune this until the balls go in from most distances. Ideal range is 2-2.5. (A lower power constant means that the energy loss is less when shooting)
     public double shooterDistanceBias = 0; // In meters; best to keep at 0; you should only use if there is a genuine bias and not a power constants issue.
 
     // The variable names are kind of unintuitive here, but it should be fine as long as you set the constants properly.
@@ -170,7 +169,7 @@ public class Shooter extends SubsystemBase {
         double g = 9.81;
         double x = distance + shooterDistanceBias;
         double y = verticalDifference;
-        double a = landAngle; // The angle at which you want your balls to land. Higher land angle means the balls take a higher curve, and lower land angle means balls are more direct. A good land angle should work at most distances while the balls should not bounce out.
+        double a = Math.toRadians(landAngleDegrees); // The angle at which you want your balls to land. Higher land angle means the balls take a higher curve, and lower land angle means balls are more direct. A good land angle should work at most distances while the balls should not bounce out.
 
         double hoodAngle = Math.atan(2 * y / x - Math.tan(a));
 
