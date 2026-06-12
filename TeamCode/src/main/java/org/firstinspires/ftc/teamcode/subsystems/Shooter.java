@@ -4,11 +4,13 @@ import static org.firstinspires.ftc.teamcode.globals.Localization.getPose;
 import static org.firstinspires.ftc.teamcode.globals.Localization.getVelocity;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.blueGoalPose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.chosenAlliance;
+import static org.firstinspires.ftc.teamcode.globals.RobotConstants.redDistancePose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.redGoalPose;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.math.Vector;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -31,13 +33,13 @@ public class Shooter extends SubsystemBase {
     public static boolean isFarside = true;
     public static double farVelocity = 1200;
 
-    public static double landAngleDegrees = -10;
+    public static double landAngleDegrees = -20;
 
 
     public final double encoderResolution = 28.0; // TODO: This is the shooter motors' ticks resolution (on the goBILDA site). For 6000 rpm, it is 28.0;
     public final double motorToFlywheelRatio = 1.0; // TODO: This is the gear ratio from the shooter motors to the flywheel. flywheelTeeth/motorTeeth
     public final double verticalDifference = 0.5; // TODO: This should be your vertical distance from the point where the balls (middle of shooter) are launched to the height of the goal (top of white part of the April Tag).
-    public static double powerConstant = 1.89; // TODO: Tune this until the balls go in from most distances. Ideal range is 2-2.5. (A lower power constant means that the energy loss is less when shooting)
+    public static double powerConstant = 2.3; // TODO: Tune this until the balls go in from most distances. Ideal range is 2-2.5. (A lower power constant means that the energy loss is less when shooting)
     public double shooterDistanceBias = 0; // In meters; best to keep at 0; you should only use if there is a genuine bias and not a power constants issue.
 
     // The variable names are kind of unintuitive here, but it should be fine as long as you set the constants properly.
@@ -46,18 +48,23 @@ public class Shooter extends SubsystemBase {
     // You can either do this manually using a protractor and measuring the exact moment the ball is launched (should be approx. center of the ball).
     // OR you can check the CAD and do this (with the CAD measurement method, you need to make sure that the hood is set to the same position as the servo position in real life).
 
-    public double minimumHoodPos = 0.07665; // TODO: This will be your minimum hood servo position, at minimum hood angle degree (for example, servo position 0 at launch angle 80 degrees - lower hood angle, higher shots, higher trajectory).
-    public double maximumHoodPos = 0.875; // TODO: This will be your maximum hood servo position, at maximum hood angle degree (for example, servo position 1 at launch angle 20 degrees - higher hood angle, lower shots, flatter trajectory).
+    public double minimumHoodPos = 0.125; // TODO: This will be your minimum hood servo position, at minimum hood angle degree (for example, servo position 0 at launch angle 80 degrees - lower hood angle, higher shots, higher trajectory).
+    public double maximumHoodPos = 1.0; // TODO: This will be your maximum hood servo position, at maximum hood angle degree (for example, servo position 1 at launch angle 20 degrees - higher hood angle, lower shots, flatter trajectory).
     // Change the values inside the brackets in degrees; it will be converted to radians.
     public double minHoodPosRad = Math.toRadians(57.452); // TODO: This should be the launch angle of the ball when the hood servo is at minimum hood position (higher shots, higher trajectory).
     public double maxHoodPosRad = Math.toRadians(27.952); // TODO: This should be the launch angle of the ball when the hood servo is at maximum hood position (more curved path/direct shots, flatter trajectory).
 
     public PIDFController controllerRight;
     public PIDFController controllerLeft;
-    public final double P = 0.03;
-    public final double I = 0.2;
-    public final double kV = 0.0004;
-    public final double kS = 0.065;
+    public final double P = 0.0075;
+    public final double I = 0;
+    public final double kV = 0.00039;
+    public final double kS = 0.03;
+
+    public static double hoodCompMin = 80;
+
+    private VoltageSensor controlHubVoltageSensor;
+
 
     public Shooter(HardwareMap hardwareMap) {
         // TODO: The directions are relative to when the shooter is facing away from you - towards the front of the field/goal.
@@ -76,6 +83,9 @@ public class Shooter extends SubsystemBase {
         shooterLeft.setDirection(DcMotorEx.Direction.REVERSE);
         shooterRight.setDirection(DcMotorEx.Direction.REVERSE);
 
+        controlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
+
+
         // TODO: Hood servo position must increase as the hood curve increases (angle decreases, flatter trajectory); for example, 0-->1, 80deg --> 20deg.
         hood.setInverted(true);
     }
@@ -83,7 +93,8 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         Pose robotPos = Localization.getPose();
-        Pose goalPose = chosenAlliance.equals("RED") ? redGoalPose : blueGoalPose;
+        Pose goalPose = chosenAlliance.equals("RED") ? redDistancePose : blueGoalPose;
+        double currentVoltage = controlHubVoltageSensor.getVoltage();
 
         double shotDistance = robotPos.distanceFrom(goalPose) * 0.0254;
         double actualVelocity = shooterRight.getVelocity();
@@ -93,19 +104,28 @@ public class Shooter extends SubsystemBase {
         double targetVelocity = getTicksFromBallSpeed(coefficients[0]);
         double hoodPos = getHoodPosFromAngle(coefficients[1]);
 
-        // Velocity compensation
-        if (Math.abs(targetVelocity - actualVelocity) > 30) {
+//         Velocity compensation
+        if (Math.abs(targetVelocity - actualVelocity) > hoodCompMin && shotDistance/0.0254 < 100) {
             hoodPos = getHoodPosFromAngle(getCompensatedHoodAngle(shotDistance, actualVelocity));
         }
 
         hood.set(hoodPos);
 
+//        if (targetVelocity - shooterRight.getVelocity() > 20) {
+//            shooterRight.setPower(1);
+//            shooterLeft.setPower(1);
+//        }
+//        else {
+//            shooterLeft.setPower(0);
+//            shooterRight.setPower(0);
+//        }
+
 //        targetVelocity = manualFar(targetVelocity);
 
         double errorRight = targetVelocity - shooterRight.getVelocity();
         double errorLeft = targetVelocity - shooterLeft.getVelocity();
-        shooterRight.setPower(controllerRight.calculate(errorRight, targetVelocity, 0.0));
-        shooterLeft.setPower(controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
+        shooterRight.setPower((12/currentVoltage)  * controllerRight.calculate(errorRight, targetVelocity, 0.0));
+        shooterLeft.setPower((12/currentVoltage)  * controllerLeft.calculate(errorRight, targetVelocity, 0.0));
     }
 
 //    public double manualFar( double targetVel){

@@ -43,6 +43,9 @@ public class Localization {
     public static Vector getVelocity() { return follower.getVelocity();}
 
     public static Pose getPose() {return follower.getPose();}
+    public static double getDistance() {
+        return RobotConstants.redGoalPose.distanceFrom(getPose());
+    }
 
     public static double getZLateral() {
         return follower.getPose().getY();

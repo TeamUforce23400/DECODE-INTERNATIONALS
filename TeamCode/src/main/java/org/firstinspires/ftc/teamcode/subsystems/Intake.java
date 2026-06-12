@@ -26,6 +26,7 @@ public class Intake extends SubsystemBase {
 //    private final ServoEx stopperLeft;
     private final ServoExGroup stopper;
     public static double intakeSpeed = 1.0;
+    public static double farSideSpeed = 0.9;
 
     public double openPos = 0.0; // TODO: This will be your stopper open position.
     public static double closePos = 0.5; // TODO: This will be your stopper close position.

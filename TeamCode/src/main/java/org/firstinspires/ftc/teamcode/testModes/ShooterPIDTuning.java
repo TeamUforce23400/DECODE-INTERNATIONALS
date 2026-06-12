@@ -128,7 +128,7 @@ public class ShooterPIDTuning extends OpMode {
         double errorRight = targetVelocity - shooter.shooterRight.getVelocity();
         double errorLeft = targetVelocity - shooter.shooterLeft.getVelocity();
         shooter.shooterRight.setPower(shooter.controllerRight.calculate(errorRight, targetVelocity, 0.0));
-        shooter.shooterLeft.setPower(shooter.controllerLeft.calculate(errorLeft, targetVelocity, 0.0));
+        shooter.shooterLeft.setPower(shooter.controllerLeft.calculate(errorRight, targetVelocity, 0.0));
 
 
 
@@ -147,6 +147,11 @@ public class ShooterPIDTuning extends OpMode {
         telemetryGroup.addData("Target Velocity", targetVelocity);
         telemetryGroup.addData("Right Velocity", actualVelocityRight);
         telemetryGroup.addData("Left Velocity", actualVelocityLeft);
+        telemetryGroup.addData("Right Error", errorRight);
+        telemetryGroup.addData("Left Error", errorLeft);
+        telemetryGroup.addData("Feedforward", kV * targetVelocity + kS);
+        telemetryGroup.addData("Right P Correction", P * errorRight);
+        telemetryGroup.addData("Left P Correction", P * errorLeft);
 
         telemetryGroup.update();
     }
