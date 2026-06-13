@@ -64,6 +64,9 @@ public class ShooterTurretTest extends OpMode {
 
         allHubs = hardwareMap.getAll(LynxModule.class);
 
+        redGoalPose  = new Pose(147, 141, Math.toRadians(90));
+
+
         turret = new Turret(hardwareMap);
         shooter = new Shooter(hardwareMap);
         intake = new Intake(hardwareMap, telemetryM);
@@ -86,7 +89,7 @@ public class ShooterTurretTest extends OpMode {
 
     @Override
     public void start() {
-        follower.startTeleOpDrive(false);
+        follower.startTeleOpDrive(true);
 
         for (LynxModule module : allHubs) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);

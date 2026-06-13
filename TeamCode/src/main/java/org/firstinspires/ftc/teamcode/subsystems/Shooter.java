@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.teamcode.globals.Localization.getPose;
 import static org.firstinspires.ftc.teamcode.globals.Localization.getVelocity;
+import static org.firstinspires.ftc.teamcode.globals.RobotConstants.blueDistancePose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.blueGoalPose;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.chosenAlliance;
 import static org.firstinspires.ftc.teamcode.globals.RobotConstants.redDistancePose;
@@ -93,7 +94,7 @@ public class Shooter extends SubsystemBase {
     @Override
     public void periodic() {
         Pose robotPos = Localization.getPose();
-        Pose goalPose = chosenAlliance.equals("RED") ? redDistancePose : blueGoalPose;
+        Pose goalPose = chosenAlliance.equals("RED") ? redDistancePose : blueDistancePose;
         double currentVoltage = controlHubVoltageSensor.getVoltage();
 
         double shotDistance = robotPos.distanceFrom(goalPose) * 0.0254;

@@ -38,8 +38,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Turret;
 
 import java.util.List;
 
-@Autonomous(name = "Red 21 Path Auto")
-public class Red24Auto extends CommandOpMode {
+@Autonomous(name = "Red 21 Path Auto New")
+public class Red24New extends CommandOpMode {
 
     private Follower follower;
     private TelemetryManager telemetryM;
@@ -55,10 +55,10 @@ public class Red24Auto extends CommandOpMode {
     private static final double H90 = Math.toRadians(-90);
     private static final double H_NEG20 = Math.toRadians(-20);
 
-    private final Pose startPose = new Pose(102.5, 133.6, H90);
+    private final Pose startPose = new Pose(109.5, 133.1, H90);
     private final Pose firstMark = new Pose(104, 87, H60);
     private final Pose firstMarkTowardsGoal = new Pose(117.5, 82, H0);
-    private final Pose firstShoot = new Pose(100, 88.5, H90);
+    private final Pose firstShoot = new Pose(96, 80, H0);
     private final Pose postFirstShoot = new Pose(82, 70, H0);
     private final Pose secondMark = new Pose(94, 55, H60);
     private final Pose secondMarkTowardsGoal = new Pose(120, 55, H0);
@@ -66,10 +66,10 @@ public class Red24Auto extends CommandOpMode {
 
 
 
-    private final Pose collectRamp = new Pose(133, 60.5, Math.toRadians(7)); // acc 59.4 y
+    private final Pose collectRamp = new Pose(133, 59.5, Math.toRadians(8)); // acc 59.4 y
     private final Pose preRamp = new Pose (130, 44, Math.toRadians(8));
 
-    private final Pose postRamp = new Pose (145.5, 50, Math.toRadians(-10));
+    private final Pose postRamp = new Pose (147, 50, Math.toRadians(-15));
 
     private int loopCounter;
     private ElapsedTime elapsedtime;
@@ -80,19 +80,19 @@ public class Red24Auto extends CommandOpMode {
         path0 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         startPose,
-                        firstShoot
+                        postFirstShoot
                 ))
                 .setHeadingInterpolation(
                         HeadingInterpolator.piecewise(
                                 new HeadingInterpolator.PiecewiseNode(
                                         0,
                                         .15,
-                                        HeadingInterpolator.linear(H90, firstShoot.getHeading())
+                                        HeadingInterpolator.linear(H90, H90)
                                 ),
                                 new HeadingInterpolator.PiecewiseNode(
                                         .15,
                                         1.0,
-                                        HeadingInterpolator.constant(firstShoot.getHeading())
+                                        HeadingInterpolator.constant(H90)
                                 )
 
                         )
@@ -100,7 +100,7 @@ public class Red24Auto extends CommandOpMode {
 
         path1 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        firstShoot,
+                        postFirstShoot,
                         firstMark,
                         firstMarkTowardsGoal
                 ))
@@ -109,7 +109,7 @@ public class Red24Auto extends CommandOpMode {
                                 new HeadingInterpolator.PiecewiseNode(
                                         0,
                                         .15,
-                                        HeadingInterpolator.linear(firstShoot.getHeading(), firstMark.getHeading())
+                                        HeadingInterpolator.linear(postFirstShoot.getHeading(), firstMark.getHeading())
                                 ),
                                 new HeadingInterpolator.PiecewiseNode(
                                         .15,
@@ -120,8 +120,8 @@ public class Red24Auto extends CommandOpMode {
                         )
 
                 ).addPath( new BezierLine(
-                        firstMarkTowardsGoal,
-                        postFirstShoot
+                                firstMarkTowardsGoal,
+                                postFirstShoot
                         )
                 ).setHeadingInterpolation(
                         HeadingInterpolator.piecewise(
@@ -160,7 +160,7 @@ public class Red24Auto extends CommandOpMode {
                         ))
                 .addPath( new BezierLine(
                                 secondMarkTowardsGoal,
-                                postFirstShoot
+                                firstShoot
                         )
                 ).setHeadingInterpolation(
                         HeadingInterpolator.piecewise(
@@ -172,7 +172,7 @@ public class Red24Auto extends CommandOpMode {
                                 new HeadingInterpolator.PiecewiseNode(
                                         .7,
                                         1.0,
-                                        HeadingInterpolator.constant(secondShoot.getHeading())
+                                        HeadingInterpolator.constant(firstShoot.getHeading())
                                 )
                         )
                 )
@@ -346,61 +346,65 @@ public class Red24Auto extends CommandOpMode {
 
 
 
-                  new WaitCommand(600),
-                  new closeStopperCommand(intake),
-                  new autoIntakeCommand(intake)
+                new WaitCommand(600),
+                new closeStopperCommand(intake),
+                new autoIntakeCommand(intake)
         );
 
         buildPaths();
 
 
         SequentialCommandGroup autonomousSequence = new SequentialCommandGroup(
-            new FollowPathCommand(follower, path0)   ,
+                new FollowPathCommand(follower, path0)   ,
 //            new shooterAtSpeedCommand(shooter),
-            shooterSequence,
-            new ParallelCommandGroup(
-                    new FollowPathCommand(follower, path1),
-                    new closeStopperCommand(intake)
-            ),
 
-            shooterSequence,
-            new FollowPathCommand(follower, path2),
-            shooterSequence,
-
-            new FollowPathCommand(follower, path4),
-            new WaitCommand(550),
-            new FollowPathCommand(follower, path5).withTimeout(300),
-            new FollowPathCommand(follower, path6),
                 shooterSequence,
-
+                new FollowPathCommand(follower, path2),
+                shooterSequence,
 
                 new FollowPathCommand(follower, path4),
                 new WaitCommand(550),
-                new FollowPathCommand(follower, path7).withTimeout(300),
-                new FollowPathCommand(follower, path6),
-                shooterSequence,
-
-
-                new FollowPathCommand(follower, path4),
-                new WaitCommand(550),
-                new FollowPathCommand(follower, path7).withTimeout(300),
+//                new FollowPathCommand(follower, path5).withTimeout(300),
                 new FollowPathCommand(follower, path6),
                 shooterSequence,
 
                 new FollowPathCommand(follower, path4),
                 new WaitCommand(550),
-                new FollowPathCommand(follower, path7).withTimeout(300),
+//                new FollowPathCommand(follower, path7).withTimeout(300),
+                new FollowPathCommand(follower, path6),
+                shooterSequence,
+
+
+                new ParallelCommandGroup(
+                        new FollowPathCommand(follower, path1),
+                        new closeStopperCommand(intake)
+                ),
+                shooterSequence,
+
+
+
+
+
+                new FollowPathCommand(follower, path4),
+                new WaitCommand(550),
+//                new FollowPathCommand(follower, path7).withTimeout(300),
                 new FollowPathCommand(follower, path6),
                 shooterSequence,
 
                 new FollowPathCommand(follower, path4),
                 new WaitCommand(550),
-                new FollowPathCommand(follower, path7).withTimeout(300),
+//                new FollowPathCommand(follower, path7).withTimeout(300),
+                new FollowPathCommand(follower, path6),
+                shooterSequence,
+
+                new FollowPathCommand(follower, path4),
+                new WaitCommand(550),
+//                new FollowPathCommand(follower, path7).withTimeout(300),
                 new FollowPathCommand(follower, path6),
                 shooterSequence
 
 
-                );
+        );
 
         schedule(autonomousSequence);
     }
