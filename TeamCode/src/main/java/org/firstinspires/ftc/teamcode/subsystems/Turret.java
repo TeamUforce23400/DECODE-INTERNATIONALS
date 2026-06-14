@@ -9,6 +9,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.geometry.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PwmControl;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.seattlesolvers.solverslib.command.SubsystemBase;
 import com.seattlesolvers.solverslib.hardware.servos.ServoEx;
 import com.seattlesolvers.solverslib.hardware.servos.ServoExGroup;
@@ -30,15 +31,16 @@ public class Turret extends SubsystemBase {
     public final double minPosServos = 0.0;
     public final double maxPosServos = 1.0 ;
 
-    public static double maxStepPerLoop = 0.03;
     public static double wrapLow = 0.05;
     // A 360-degree heading is servo position 0.90 because the configured span is 400 degrees.
     public static double wrapHigh = 0.85;
     public static double safeMiddle = 0.5;
+    public static double midpointHoldSeconds = 0.35;
 
     private double currentServoPosition = 0.5;
     private double finalTargetPosition = 0.5;
     private boolean routingThroughMiddle = false;
+    private final ElapsedTime midpointTimer = new ElapsedTime();
 
     public Turret(HardwareMap hardwareMap) {
         servoRightFront = new ServoEx(hardwareMap, "trf");
@@ -115,36 +117,25 @@ public class Turret extends SubsystemBase {
     private void moveToPosition(double targetPosition) {
         finalTargetPosition = targetPosition;
 
-        // The AXON's 1 -> 0 wrap skips turret travel, so latch a route through the midpoint.
         if (!routingThroughMiddle
                 && currentServoPosition > wrapHigh
                 && targetPosition < wrapLow) {
             routingThroughMiddle = true;
+            midpointTimer.reset();
+            commandPosition(safeMiddle);
+            return;
         }
 
-        double activeTarget = routingThroughMiddle
-                ? safeMiddle
-                : finalTargetPosition;
+        if (routingThroughMiddle) {
+            if (midpointTimer.seconds() < midpointHoldSeconds) {
+                commandPosition(safeMiddle);
+                return;
+            }
 
-        commandPosition(moveToward(
-                currentServoPosition,
-                activeTarget,
-                maxStepPerLoop
-        ));
-
-        if (routingThroughMiddle && currentServoPosition == safeMiddle) {
             routingThroughMiddle = false;
         }
-    }
 
-    private double moveToward(double current, double target, double maxStep) {
-        double error = target - current;
-
-        if (Math.abs(error) <= maxStep) {
-            return target;
-        }
-
-        return current + Math.signum(error) * maxStep;
+        commandPosition(finalTargetPosition);
     }
 
     private void commandPosition(double position) {

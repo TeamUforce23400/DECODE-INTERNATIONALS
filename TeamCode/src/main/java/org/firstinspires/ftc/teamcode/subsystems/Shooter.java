@@ -123,6 +123,7 @@ public class Shooter extends SubsystemBase {
 
 //        targetVelocity = manualFar(targetVelocity);
 
+
         double errorRight = targetVelocity - shooterRight.getVelocity();
         double errorLeft = targetVelocity - shooterLeft.getVelocity();
         shooterRight.setPower((12/currentVoltage)  * controllerRight.calculate(errorRight, targetVelocity, 0.0));
