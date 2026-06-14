@@ -55,7 +55,7 @@ public class Red24New extends CommandOpMode {
     private static final double H90 = Math.toRadians(-90);
     private static final double H_NEG20 = Math.toRadians(-20);
 
-    private final Pose startPose = new Pose(109.5, 133.1, H90);
+    private final Pose startPose = new Pose(107, 133.1, H90);
     private final Pose firstMark = new Pose(104, 87, H60);
     private final Pose firstMarkTowardsGoal = new Pose(117.5, 82, H0);
     private final Pose firstShoot = new Pose(96, 80, H0);
@@ -66,10 +66,10 @@ public class Red24New extends CommandOpMode {
 
 
 
-    private final Pose collectRamp = new Pose(133, 59.5, Math.toRadians(8)); // acc 59.4 y
-    private final Pose preRamp = new Pose (130, 44, Math.toRadians(8));
+    private final Pose collectRamp = new Pose(133, 58.5, Math.toRadians(10)); // acc 59.4 y
+    private final Pose preRamp = new Pose (130, 44, Math.toRadians(10));
 
-    private final Pose postRamp = new Pose (147, 50, Math.toRadians(-15));
+    private final Pose postRamp = new Pose (144, 50, Math.toRadians(-15));
 
     private int loopCounter;
     private ElapsedTime elapsedtime;
@@ -221,9 +221,9 @@ public class Red24New extends CommandOpMode {
                 .build();
 //
         path5 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         collectRamp,
-                        preRamp,
+//                        preRamp,
                         postRamp
                 ))
                 .setHeadingInterpolation(
@@ -262,9 +262,9 @@ public class Red24New extends CommandOpMode {
                 .build();
 
         path7 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         collectRamp,
-                        preRamp,
+//                        preRamp,
                         new Pose(postRamp.getX(), collectRamp.getY() - 0.1, collectRamp.getHeading())
 
                 ))
@@ -364,13 +364,13 @@ public class Red24New extends CommandOpMode {
 
                 new FollowPathCommand(follower, path4),
                 new WaitCommand(550),
-//                new FollowPathCommand(follower, path5).withTimeout(300),
+                new FollowPathCommand(follower, path5),
                 new FollowPathCommand(follower, path6),
                 shooterSequence,
 
                 new FollowPathCommand(follower, path4),
                 new WaitCommand(550),
-//                new FollowPathCommand(follower, path7).withTimeout(300),
+                new FollowPathCommand(follower, path5),
                 new FollowPathCommand(follower, path6),
                 shooterSequence,
 
@@ -387,19 +387,19 @@ public class Red24New extends CommandOpMode {
 
                 new FollowPathCommand(follower, path4),
                 new WaitCommand(550),
-//                new FollowPathCommand(follower, path7).withTimeout(300),
+                new FollowPathCommand(follower, path7),
                 new FollowPathCommand(follower, path6),
                 shooterSequence,
 
                 new FollowPathCommand(follower, path4),
                 new WaitCommand(550),
-//                new FollowPathCommand(follower, path7).withTimeout(300),
+                new FollowPathCommand(follower, path7),
                 new FollowPathCommand(follower, path6),
                 shooterSequence,
 
                 new FollowPathCommand(follower, path4),
                 new WaitCommand(550),
-//                new FollowPathCommand(follower, path7).withTimeout(300),
+                new FollowPathCommand(follower, path7),
                 new FollowPathCommand(follower, path6),
                 shooterSequence
 

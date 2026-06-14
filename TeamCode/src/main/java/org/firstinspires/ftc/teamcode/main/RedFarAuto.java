@@ -22,6 +22,7 @@ import com.seattlesolvers.solverslib.command.ParallelRaceGroup;
 import com.seattlesolvers.solverslib.command.SequentialCommandGroup;
 import com.seattlesolvers.solverslib.command.WaitCommand;
 import com.seattlesolvers.solverslib.pedroCommand.FollowPathCommand;
+import com.seattlesolvers.solverslib.pedroCommand.TurnCommand;
 import com.seattlesolvers.solverslib.pedroCommand.TurnToCommand;
 //import com.skeletonarmy.marrow.TimerEx;
 
@@ -72,7 +73,7 @@ public class RedFarAuto extends CommandOpMode {
 
     private final Pose startPose = new Pose(86.1, 6.74, Math.toRadians(0));
     private final Pose pose1 = new Pose(86.1, 16, Math.toRadians(0));
-    private final Pose humanPlayerRight = new Pose(132, 7.8, Math.toRadians(0));
+    private final Pose humanPlayerRight = new Pose(138, 7.8, Math.toRadians(0));
 
 //    private final Pose humanPlayerRightForward = new Pose(133, 50, Math.toRadians(40));
 ////    private final Pose nearMark = new Pose(120.128, 83.66);
@@ -85,7 +86,7 @@ public class RedFarAuto extends CommandOpMode {
 //
 //    private final Pose humanPlayerRightFirstDrifted = new Pose(138.3, 1.8, Math.toRadians(0));
     private final Pose collectLastMarkCP = new Pose(109.430, 37.845, Math.toRadians(-60));
-    private final Pose collectLastMark = new Pose(128.360, 35.231, Math.toRadians(0));
+    private final Pose collectLastMark = new Pose(128.360, 39, Math.toRadians(0));
 
 //    private final Pose collectOverflow = new Pose(130.5, 30.1, Math.toRadians(40));
 
@@ -207,9 +208,10 @@ public class RedFarAuto extends CommandOpMode {
                 .build();
 
         path5 = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         humanPlayerRight,
-                        humanPlayerRightSlightBack
+                        humanPlayerRightSlightBack,
+                        collectLastMark
                 ))
                 .setHeadingInterpolation(
                         HeadingInterpolator.piecewise(
@@ -221,30 +223,30 @@ public class RedFarAuto extends CommandOpMode {
                                 new HeadingInterpolator.PiecewiseNode(
                                         .7,
                                         1.0,
-                                        HeadingInterpolator.constant(humanPlayerRightSlightBack.getHeading())
+                                        HeadingInterpolator.constant(Math.toRadians(90))
                                 )
                         )
                 )
 
-                .addPath(new BezierCurve(
-                        humanPlayerRightSlightBack,
-                        poseAfterMiss,
-                        poseAfterMissForward
-                ))
-                .setHeadingInterpolation(
-                        HeadingInterpolator.piecewise(
-                                new HeadingInterpolator.PiecewiseNode(
-                                        0,
-                                        .7,
-                                        HeadingInterpolator.constant(humanPlayerRightSlightBack.getHeading())
-                                ),
-                                new HeadingInterpolator.PiecewiseNode(
-                                        .7,
-                                        1.0,
-                                        HeadingInterpolator.constant(poseAfterMissForward.getHeading())
-                                )
-                        )
-                )
+//                .addPath(new BezierCurve(
+//                        humanPlayerRightSlightBack,
+//                        poseAfterMiss,
+//                        poseAfterMissForward
+//                ))
+//                .setHeadingInterpolation(
+//                        HeadingInterpolator.piecewise(
+//                                new HeadingInterpolator.PiecewiseNode(
+//                                        0,
+//                                        .7,
+//                                        HeadingInterpolator.linear(poseAfterMissForward.getHeading(), humanPlayerRightSlightBack.getHeading())
+//                                ),
+//                                new HeadingInterpolator.PiecewiseNode(
+//                                        .7,
+//                                        1.0,
+//                                        HeadingInterpolator.constant(poseAfterMissForward.getHeading())
+//                                )
+//                        )
+//                )
 
                 .addPath(new BezierLine(
                         poseAfterMissForward,
@@ -255,7 +257,7 @@ public class RedFarAuto extends CommandOpMode {
                                 new HeadingInterpolator.PiecewiseNode(
                                         0,
                                         .7,
-                                        HeadingInterpolator.constant(poseAfterMissForward.getHeading())
+                                        HeadingInterpolator.tangent.reverse()
                                 ),
                                 new HeadingInterpolator.PiecewiseNode(
                                         .7,
@@ -603,6 +605,9 @@ public class RedFarAuto extends CommandOpMode {
         allHubs = hardwareMap.getAll(LynxModule.class);
         elapsedtime.reset();
 
+        RobotConstants.redGoalPose = new Pose(138, 146, Math.toRadians(90));
+
+
         chosenAlliance = "RED";
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
 
@@ -642,17 +647,58 @@ public class RedFarAuto extends CommandOpMode {
                 new shooterAtSpeedCommand(shooter),
                 shooterSequence,
 
+                new FollowPathCommand(follower, path2),
+                new FollowPathCommand(follower, path3),
+                new WaitCommand(200),
+                shooterSequence,
+
+                new FollowPathCommand(follower, path4),
+                new WaitCommand(200),
+                shooterSequence,
+
+
+
                 new ParallelCommandGroup(
-                        new FollowPathCommand(follower, path2),
+                        new FollowPathCommand(follower, path2).withTimeout(300),
                         new autoIntakeCommand(intake)
                 ),
 
                 // AFTER path2 finishes, choose path3 or path4
                 new ConditionalCommand(
                         new FollowPathCommand(follower, path3),
-                        new FollowPathCommand(follower, path4),
+                        new FollowPathCommand(follower, path5),
                         () -> intake.all3
-                )
+                ),
+                new WaitCommand(200),
+                shooterSequence,
+
+        new ParallelCommandGroup(
+                new FollowPathCommand(follower, path2),
+                new autoIntakeCommand(intake)
+        ),
+
+                // AFTER path2 finishes, choose path3 or path4
+                new ConditionalCommand(
+                        new FollowPathCommand(follower, path3).withTimeout(300),
+                        new FollowPathCommand(follower, path5),
+                        () -> intake.all3
+                ),
+                new WaitCommand(200),
+                shooterSequence,
+
+        new ParallelCommandGroup(
+                new FollowPathCommand(follower, path2).withTimeout(300),
+                new autoIntakeCommand(intake)
+        ),
+
+                // AFTER path2 finishes, choose path3 or path4
+                new ConditionalCommand(
+                        new FollowPathCommand(follower, path3),
+                        new FollowPathCommand(follower, path5),
+                        () -> intake.all3
+                ),
+                new WaitCommand(200),
+                shooterSequence
 
 
         );
